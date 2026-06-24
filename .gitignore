@@ -16,3 +16,4 @@ build/
 *.log
 CMakeCache.txt
 CMakeFiles/
+documents/
