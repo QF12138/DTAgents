@@ -1,0 +1,216 @@
+id: T-I-19
+name: "L3-完整工程多时段探测数据查询"
+agent: InitializationAgent
+level: L3
+prompt: "查询某长大隧道工程从施工初期到当前的所有阶段性探测数据，包括设计阶段的钻孔资料、施工阶段的GPR和TSP数据、以及近期的高密度电法数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "BOREHOLE"
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "GPR"
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "TSP"
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "ERT"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "某长大隧道工程"
+        type: tunnel
+        location: "西南山区"
+        total_length: 12580.0
+        construction_start: "2020-01-01"
+        current_progress: 68.5
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      # 设计阶段钻孔（较早时期）
+      - dataset_id: "D-BH-D001"
+        name: "设计钻孔_初测阶段_25孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/historical/borehole/design_phase_25.csv"
+        start_mileage: 0.0
+        end_mileage: 12580.0
+        site_id: "P001"
+        survey_period: "design_phase"
+        survey_date: "2019-06-01"
+        borehole_count: 25
+        attributes: [层位深度, 岩性, RQD, 完整性系数]
+      # 施工阶段钻孔（验证孔）
+      - dataset_id: "D-BH-C001"
+        name: "施工钻孔_进口段_8孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/historical/borehole/construction_import_8.csv"
+        start_mileage: 0.0
+        end_mileage: 3200.0
+        site_id: "S001"
+        survey_period: "construction_phase"
+        survey_date: "2021-03-15"
+        borehole_count: 8
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+      - dataset_id: "D-BH-C002"
+        name: "施工钻孔_洞身1_12孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/historical/borehole/construction_mid1_12.csv"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+        site_id: "S003"
+        survey_period: "construction_phase"
+        survey_date: "2022-07-20"
+        borehole_count: 12
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+      - dataset_id: "D-BH-C003"
+        name: "施工钻孔_出口段_6孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/historical/borehole/construction_export_6.csv"
+        start_mileage: 10500.0
+        end_mileage: 12580.0
+        site_id: "S006"
+        survey_period: "construction_phase"
+        survey_date: "2023-11-10"
+        borehole_count: 6
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+    message: "查询到 4 批钻孔数据（设计阶段1批 + 施工阶段3批，共51孔）"
+    metadata: {count: 4, total_boreholes: 51, periods: [design_phase, construction_phase]}
+  query_metadata:
+    success: true
+    data:
+      # GPR周期性检测数据
+      - dataset_id: "D-GPR-2021Q1"
+        name: "GPR_2021年第一季度检测.raw"
+        data_type: "GPR"
+        file_path: "data/historical/gpr/2021Q1_full.raw"
+        start_mileage: 0.0
+        end_mileage: 5800.0
+        site_id: "S001-S003"
+        survey_period: "2021Q1"
+        survey_date: "2021-03-01"
+        coverage: "进口至洞身1段"
+      - dataset_id: "D-GPR-2022Q2"
+        name: "GPR_2022年第二季度检测.raw"
+        data_type: "GPR"
+        file_path: "data/historical/gpr/2022Q2_full.raw"
+        start_mileage: 0.0
+        end_mileage: 8800.0
+        site_id: "S001-S004"
+        survey_period: "2022Q2"
+        survey_date: "2022-06-15"
+        coverage: "进口至2号斜井段"
+      - dataset_id: "D-GPR-2023Q3"
+        name: "GPR_2023年第三季度检测.raw"
+        data_type: "GPR"
+        file_path: "data/historical/gpr/2023Q3_full.raw"
+        start_mileage: 0.0
+        end_mileage: 10500.0
+        site_id: "S001-S005"
+        survey_period: "2023Q3"
+        survey_date: "2023-09-20"
+        coverage: "进口至洞身2段"
+      - dataset_id: "D-GPR-2024Q4"
+        name: "GPR_2024年第四季度检测.raw"
+        data_type: "GPR"
+        file_path: "data/historical/gpr/2024Q4_full.raw"
+        start_mileage: 0.0
+        end_mileage: 11500.0
+        site_id: "S001-S006"
+        survey_period: "2024Q4"
+        survey_date: "2024-12-10"
+        coverage: "进口至出口段(施工掌子面前方)"
+    message: "查询到 4 期 GPR 检测数据（2021Q1-2024Q4）"
+    metadata: {count: 4, periods: [2021Q1, 2022Q2, 2023Q3, 2024Q4], analysis_type: time_series}
+  query_metadata:
+    success: true
+    data:
+      # TSP超前预报（按里程段）
+      - dataset_id: "D-TSP-B001"
+        name: "TSP_进口段_超前预报_0-3200m.dat"
+        data_type: "TSP"
+        file_path: "data/historical/tsp/import_forecast_0_3200.dat"
+        start_mileage: 0.0
+        end_mileage: 3200.0
+        site_id: "S001"
+        forecast_count: 18
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      - dataset_id: "D-TSP-B002"
+        name: "TSP_洞身1_超前预报_4200-6800m.dat"
+        data_type: "TSP"
+        file_path: "data/historical/tsp/mid1_forecast_4200_6800.dat"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+        site_id: "S003"
+        forecast_count: 15
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      - dataset_id: "D-TSP-B003"
+        name: "TSP_洞身2_超前预报_7800-10500m.dat"
+        data_type: "TSP"
+        file_path: "data/historical/tsp/mid2_forecast_7800_10500.dat"
+        start_mileage: 7800.0
+        end_mileage: 10500.0
+        site_id: "S005"
+        forecast_count: 12
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      - dataset_id: "D-TSP-B004"
+        name: "TSP_出口段_超前预报_10500-12580m.dat"
+        data_type: "TSP"
+        file_path: "data/historical/tsp/export_forecast_10500_12580.dat"
+        start_mileage: 10500.0
+        end_mileage: 12580.0
+        site_id: "S006"
+        forecast_count: 10
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+    message: "查询到 4 段 TSP 超前预报数据（共 55 次预报）"
+    metadata: {count: 4, total_forecasts: 55, avg_per_section: 13.75}
+  query_metadata:
+    success: true
+    data:
+      # 高密度电法数据（近期新增）
+      - dataset_id: "D-ERT-001"
+        name: "ERT_进口段异常区段_5000-5200m.dat"
+        data_type: "ERT"
+        file_path: "data/raw/ert/ERT_import_anomaly_5000_5200.dat"
+        start_mileage: 5000.0
+        end_mileage: 5200.0
+        site_id: "S001"
+        electrode_count: 120
+        survey_date: "2024-08-15"
+        attributes: [视电阻率, 极距, 电极排列方式]
+      - dataset_id: "D-ERT-002"
+        name: "ERT_洞身1_F4断层影响区_6200-6500m.dat"
+        data_type: "ERT"
+        file_path: "data/raw/ert/ERT_mid1_fault_F4_6200_6500.dat"
+        start_mileage: 6200.0
+        end_mileage: 6500.0
+        site_id: "S003"
+        electrode_count: 120
+        survey_date: "2024-09-20"
+        attributes: [视电阻率, 极距, 电极排列方式]
+      - dataset_id: "D-ERT-003"
+        name: "ERT_出口段岩溶发育区_11200-11500m.dat"
+        data_type: "ERT"
+        file_path: "data/raw/ert/ERT_export_karst_11200_11500.dat"
+        start_mileage: 11200.0
+        end_mileage: 11500.0
+        site_id: "S006"
+        electrode_count: 120
+        survey_date: "2024-11-05"
+        attributes: [视电阻率, 极距, 电极排列方式]
+    message: "查询到 3 个高密度电法数据集（针对异常区段的专项探测）"
+    metadata: {count: 3, survey_type: targeted_investigation, targets: [anomaly_zone, fault_zone, karst_zone]}

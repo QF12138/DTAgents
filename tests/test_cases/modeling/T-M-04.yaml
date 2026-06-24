@@ -1,0 +1,30 @@
+id: T-M-04
+name: "L2-克里金插值后提取等值面"
+agent: ModelingAgent
+level: L2
+prompt: "使用克里金插值法对钻孔控制点数据（data/raw/drl_2024.csv）进行空间插值，建立岩性属性场，然后提取岩性值为2.0的等值面"
+expected_tool_sequence:
+  - tool: interpolate_spatial
+    params:
+      method: "kriging"
+      attribute: "lithology"
+  - tool: extract_isosurface
+    params:
+      voxel_grid_path: "data/processed/kriging_result.npz"
+      attribute: "lithology"
+      isovalue: 2.0
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  interpolate_spatial:
+    success: true
+    data: {grid_shape: [100, 100, 50], attribute: "lithology"}
+    file_path: "data/processed/kriging_result.npz"
+    message: "克里金插值完成"
+    metadata: {}
+  extract_isosurface:
+    success: true
+    data: {entity_id: 2010, vertex_count: 12000, face_count: 24000}
+    message: "等值面提取完成，实体 ID: 2010"
+    metadata: {}

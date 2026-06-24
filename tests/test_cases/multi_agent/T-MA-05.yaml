@@ -1,0 +1,52 @@
+id: T-MA-05
+name: "两阶段协同-查询并可视化工程地质图"
+agent: multi_agent
+level: L2
+prompt: "查询隧道工程A的工程地质图（EGM）数据，加载后展示在三维视图中并聚焦"
+expected_agents:
+  - InitializationAgent
+  - VisualizationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "EGM"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/egm_2024.shp"
+      dataset_type: "EGM"
+  - tool: focus_on_entity
+    params:
+      entity_ids: [1005]
+expected_final_state:
+  success: true
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D005"
+        name: "egm_2024.shp"
+        data_type: "EGM"
+        file_path: "data/raw/egm_2024.shp"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}
+  import_dataset:
+    success: true
+    data: {entity_id: 1005}
+    message: "成功加载 EGM 数据，实体 ID: 1005"
+    metadata: {}
+  focus_on_entity:
+    success: true
+    data: {entity_ids: [1005], view_id: -1}
+    message: "相机聚焦完成"
+    metadata: {}

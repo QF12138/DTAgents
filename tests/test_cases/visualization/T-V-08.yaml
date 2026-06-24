@@ -1,0 +1,38 @@
+id: T-V-08
+name: "L3-创建四分视图并设置四个方向标准视角"
+agent: VisualizationAgent
+level: L3
+prompt: "创建一个四分割视图（quad布局），分别在四个视图中设置顶视图、正视图、右视图和等轴侧视图"
+expected_tool_sequence:
+  - tool: create_view
+    params:
+      layout: "quad"
+  - tool: set_standard_view
+    params:
+      direction: "top"
+      view_id: 3
+  - tool: set_standard_view
+    params:
+      direction: "front"
+      view_id: 3
+  - tool: set_standard_view
+    params:
+      direction: "right"
+      view_id: 3
+  - tool: set_standard_view
+    params:
+      direction: "isometric"
+      view_id: 3
+expected_final_state:
+  success: true
+mock_responses:
+  create_view:
+    success: true
+    data: {view_id: 3, layout: "quad"}
+    message: "四分视图创建成功"
+    metadata: {}
+  set_standard_view:
+    success: true
+    data: {direction: "top"}
+    message: "视角切换成功"
+    metadata: {}

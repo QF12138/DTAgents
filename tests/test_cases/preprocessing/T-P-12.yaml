@@ -1,0 +1,28 @@
+id: T-P-12
+name: "L4-边界-非钻孔数据不应执行spatial_sample"
+agent: PreprocessingAgent
+level: L4
+prompt: "用中线2001对DEM数据实体1001进行工程尺度裁剪，缓冲区100米，覆盖全线，然后对数据进行处理"
+# DEM 不属于钻孔类数据（AHD/DBH/DRL/TFS/TEM），不应调用 spatial_sample
+# 提示词中"进行处理"措辞模糊，agent 不应将其解读为需要空间采样
+
+expected_tool_sequence:
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 1001
+      centerline_id: 2001
+      coverage_range: 100.0
+      clip_mode: "regional"
+# 期望行为：仅调用 clip_to_boundary，不应出现 spatial_sample
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4002}
+    file_path: null
+    message: "工程尺度二维缓冲区裁剪完成，边界实体ID: 4002"
+    metadata: {}

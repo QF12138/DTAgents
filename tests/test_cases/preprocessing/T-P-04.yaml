@@ -1,0 +1,38 @@
+id: T-P-04
+name: "L2-两步-里程转空间坐标后洞内三维裁剪"
+agent: PreprocessingAgent
+level: L2
+prompt: "将GPR数据实体1011（中线2001，纵断面2002）转换到三维空间坐标，然后沿中线2001以50米缓冲区裁剪里程5000到5500段的洞内区域"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1011
+      transform_type: "mileage_to_spatial"
+      centerline_id: 2001
+      profile_id: 2002
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 3001
+      centerline_id: 2001
+      coverage_range: 50.0
+      clip_mode: "tunnel"
+      mileage_range: [5000.0, 5500.0]
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3001}
+    file_path: null
+    message: "里程转三维坐标完成，新实体ID: 3001"
+    metadata: {}
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4001}
+    file_path: null
+    message: "洞内三维缓冲区裁剪完成，边界实体ID: 4001"
+    metadata: {}

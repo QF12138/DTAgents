@@ -1,0 +1,159 @@
+id: T-P-13
+name: "L3-长大隧道多数据源融合预处理（TSP+GPR+钻孔→统一体素网格）"
+agent: PreprocessingAgent
+level: L3
+prompt: "对DK5+000至DK8+000里程段的多源探测数据进行完整预处理：先将TSP和GPR数据从里程坐标系转换为三维空间坐标，再对钻孔数据进行深度坐标转换，然后统一所有数据的分辨率至2米，最后进行体素化生成融合体素网格"
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_ids: [201, 202, 203]
+      transform_type: "mileage_to_spatial"
+      centerline_id: 1001
+      profile_id: 1002
+  - tool: project_transform
+    params:
+      dataset_ids: [301, 302, 303]
+      transform_type: "mileage_to_spatial"
+      centerline_id: 1001
+  - tool: project_transform
+    params:
+      dataset_ids: [401, 402, 403, 404]
+      transform_type: "borehole_to_3d"
+      centerline_id: 1001
+  - tool: resample
+    params:
+      entity_ids: [3001, 3002, 3003, 3004, 3005, 3006, 3007]
+      target_resolution: 2.0
+      method: "cubic"
+  - tool: voxelize
+    params:
+      entity_ids: [5001, 5002, 5003, 5004, 5005, 5006, 5007]
+      bbox: [4900.0, -200.0, -150.0, 8100.0, 200.0, 50.0]
+      resolution: 2.0
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  project_transform:
+    success: true
+    data:
+      - entity_id: 3001
+        original_id: 201
+        data_type: "TSP"
+        point_count: 15200
+      - entity_id: 3002
+        original_id: 202
+        data_type: "TSP"
+        point_count: 14800
+      - entity_id: 3003
+        original_id: 203
+        data_type: "TSP"
+        point_count: 15600
+    message: "TSP数据里程转换完成，3个数据集共45600个空间点"
+    metadata: {total_points: 45600, transformation: mileage_to_spatial}
+  project_transform:
+    success: true
+    data:
+      - entity_id: 3004
+        original_id: 301
+        data_type: "GPR"
+        point_count: 285000
+      - entity_id: 3005
+        original_id: 302
+        data_type: "GPR"
+        point_count: 278000
+      - entity_id: 3006
+        original_id: 303
+        data_type: "GPR"
+        point_count: 292000
+    message: "GPR数据里程转换完成，3个数据集共855000个雷达反射点"
+    metadata: {total_points: 855000, transformation: mileage_to_spatial}
+  project_transform:
+    success: true
+    data:
+      - entity_id: 3007
+        original_id: 401
+        data_type: "BOREHOLE"
+        point_count: 1280
+        depth_range: [0.0, 80.0]
+      - entity_id: 3008
+        original_id: 402
+        data_type: "BOREHOLE"
+        point_count: 1560
+        depth_range: [0.0, 90.0]
+      - entity_id: 3009
+        original_id: 403
+        data_type: "BOREHOLE"
+        point_count: 1420
+        depth_range: [0.0, 75.0]
+      - entity_id: 3010
+        original_id: 404
+        data_type: "BOREHOLE"
+        point_count: 1180
+        depth_range: [0.0, 65.0]
+    message: "钻孔数据三维坐标转换完成，4个钻孔共5440个分层点"
+    metadata: {total_points: 5440, transformation: borehole_to_3d, avg_depth: 77.5}
+  resample:
+    success: true
+    data:
+      - entity_id: 5001
+        original_id: 3001
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 12400
+      - entity_id: 5002
+        original_id: 3002
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 12100
+      - entity_id: 5003
+        original_id: 3003
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 12800
+      - entity_id: 5004
+        original_id: 3004
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 156000
+      - entity_id: 5005
+        original_id: 3005
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 152000
+      - entity_id: 5006
+        original_id: 3006
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 158000
+      - entity_id: 5007
+        original_id: 3007
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 3200
+      - entity_id: 5008
+        original_id: 3008
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 3600
+      - entity_id: 5009
+        original_id: 3009
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 3450
+      - entity_id: 5010
+        original_id: 3010
+        method: "cubic"
+        target_resolution: 2.0
+        point_count: 3100
+    message: "统一分辨率重采样完成，10个数据集共391650个采样点"
+    metadata: {target_resolution: 2.0, method: cubic, total_points: 391650}
+  voxelize:
+    success: true
+    data:
+      entity_id: 6001
+      grid_dimensions: [1600, 400, 100]
+      voxel_count: 64000000
+      attributes: [P波速度, S波速度, 密度, 电阻率, 反射强度, 岩性代码]
+    message: "多源数据体素化完成，融合体素网格 ID: 6001"
+    metadata: {voxel_count: 64000000, bbox: [4900, -200, -150, 8100, 200, 50], resolution: 2.0}

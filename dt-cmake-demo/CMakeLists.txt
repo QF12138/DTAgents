@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.25)
+
+project(DTPyLibDev LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_PREFIX_PATH}/lib/cmake/OpenVDB)
+
+set(DTGeoStudio_DIR ${SDK_INSTALL_PATH}/lib/cmake/DTGeoStudio)
+set(OGDF_DIR ${CMAKE_PREFIX_PATH}/../lib/cmake/OGDF)
+
+find_package(DTGeoStudio REQUIRED CONFIG)
+find_package(pybind11 REQUIRED)
+
+pybind11_add_module(DTPyRuntime py_runtime.cpp)
+
+target_link_libraries(DTPyRuntime PRIVATE DTGeoStudio::DTPlatform)
+
+set_target_properties(DTPyRuntime PROPERTIES
+    LIBRARY_OUTPUT_DIRECTORY "${APP_INSTALL_PATH}/scripts"
+    LIBRARY_OUTPUT_DIRECTORY_DEBUG "${APP_INSTALL_PATH}/scripts"
+    LIBRARY_OUTPUT_DIRECTORY_RELEASE "${APP_INSTALL_PATH}/scripts"
+    LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL "${APP_INSTALL_PATH}/scripts"
+    LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${APP_INSTALL_PATH}/scripts"
+)

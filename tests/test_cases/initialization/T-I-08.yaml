@@ -1,0 +1,36 @@
+id: T-I-08
+name: "L2-两步顺序-工程下多类型数据查询"
+agent: InitializationAgent
+level: L2
+prompt: "查询示例隧道工程项目中所有的TEM瞬变电磁和GPR地质雷达数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D012"
+        name: "tem_dk5.dat"
+        data_type: "TEM"
+        file_path: "data/raw/tem_dk5.dat"
+      - dataset_id: "D011"
+        name: "gpr_dk10_20.dat"
+        data_type: "GPR"
+        file_path: "data/raw/gpr_dk10_20.dat"
+    message: "查询到 2 个数据集"
+    metadata: {count: 2}

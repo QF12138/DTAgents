@@ -1,0 +1,37 @@
+id: T-I-16
+name: "L4-边界-歧义输入处理（工程名+里程）"
+agent: InitializationAgent
+level: L4
+prompt: "查询隧道工程A在DK10+000附近的TEM瞬变电磁数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: work_site
+  - tool: query_metadata
+    params:
+      data_type: "TEM"
+expected_final_state:
+  success: true
+  contains_field: data
+# 测试点：同时包含工程名和里程，agent 应能合理处理，
+# 最常见的正确做法是先按工程或按里程查工点，再查数据
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - site_id: "S002"
+        project_id: "P001"
+        name: "中间段"
+        start_mileage: 9500.0
+        end_mileage: 10500.0
+    message: "查询到 1 个工点"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D012"
+        name: "tem_dk10.dat"
+        data_type: "TEM"
+        file_path: "data/raw/tem_dk10.dat"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}

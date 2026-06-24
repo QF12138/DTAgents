@@ -1,0 +1,24 @@
+id: T-M-11
+name: "L4-复杂参数-克里金插值高级参数填充"
+agent: ModelingAgent
+level: L4
+prompt: "对钻孔数据（data/raw/drl_2024.csv）进行克里金插值，要求设置半变异函数参数：变程（range）为100米，块金值（nugget）为0.1，基台值（sill）为1.0"
+expected_tool_sequence:
+  - tool: interpolate_spatial
+    params:
+      method: "kriging"
+      method_params:
+        range: 100
+        nugget: 0.1
+        sill: 1.0
+expected_final_state:
+  success: true
+  contains_field: file_path
+# 测试点：agent 能正确将自然语言中的参数值填入嵌套的 method_params 字典
+mock_responses:
+  interpolate_spatial:
+    success: true
+    data: {grid_shape: [100, 100, 50]}
+    file_path: "data/processed/kriging_advanced.npz"
+    message: "克里金插值完成（变程=100m，块金=0.1）"
+    metadata: {}

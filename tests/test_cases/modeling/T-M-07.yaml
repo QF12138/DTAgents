@@ -1,0 +1,20 @@
+id: T-M-07
+name: "L2-两个地质体求差运算"
+agent: ModelingAgent
+level: L2
+prompt: "对地质体A（data/models/body_a.vtk）和地质体B（data/models/body_b.vtk）进行布尔差运算，求A减去B的部分"
+expected_tool_sequence:
+  - tool: boolean_operation
+    params:
+      mesh_a_path: "data/models/body_a.vtk"
+      mesh_b_path: "data/models/body_b.vtk"
+      operation: "difference"
+expected_final_state:
+  success: true
+  contains_field: file_path
+mock_responses:
+  boolean_operation:
+    success: true
+    file_path: "data/processed/bool_diff.vtk"
+    message: "布尔差运算完成"
+    metadata: {}

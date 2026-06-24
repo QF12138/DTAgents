@@ -1,0 +1,44 @@
+id: T-P-09
+name: "L3-三步-DEM和DOM双数据CRS转换后工程裁剪"
+agent: PreprocessingAgent
+level: L3
+prompt: "将DEM实体1001和DOM实体1002均从EPSG:4326转换到EPSG:4547，然后对转换后的DEM数据沿中线2001做500米工程尺度缓冲裁剪，里程区间DK5+000到DK7+000"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1001
+      transform_type: "crs_transform"
+      source_crs: "EPSG:4326"
+      target_crs: "EPSG:4547"
+  - tool: project_transform
+    params:
+      dataset_id: 1002
+      transform_type: "crs_transform"
+      source_crs: "EPSG:4326"
+      target_crs: "EPSG:4547"
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 3002
+      centerline_id: 2001
+      coverage_range: 500.0
+      clip_mode: "regional"
+      mileage_range: [5000.0, 7000.0]
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3002}
+    file_path: null
+    message: "坐标系转换完成，新实体ID: 3002"
+    metadata: {}
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4002}
+    file_path: null
+    message: "工程尺度二维缓冲区裁剪完成，边界实体ID: 4002"
+    metadata: {}

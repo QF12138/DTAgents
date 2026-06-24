@@ -1,0 +1,21 @@
+id: T-V-06
+name: "L2-实体viridis色图显示，透明度50%"
+agent: VisualizationAgent
+level: L2
+prompt: "将实体4用viridis色图显示应力属性（stress），透明度设置为50%"
+expected_tool_sequence:
+  - tool: configure_entity
+    params:
+      entity_ids: [4]
+      mode: "colormap"
+      attribute: "stress"
+      colormap: "viridis"
+      opacity: 0.5
+expected_final_state:
+  success: true
+mock_responses:
+  configure_entity:
+    success: true
+    data: {updated_entities: [4]}
+    message: "实体配置更新成功"
+    metadata: {}

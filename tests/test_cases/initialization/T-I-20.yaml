@@ -1,0 +1,107 @@
+id: T-I-20
+name: "L2-跨工程项目数据查询（多项目综合分析）"
+agent: InitializationAgent
+level: L2
+prompt: "查询区域内所有隧道工程项目及其数据，用于多项目对比分析"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+      region: "西南山区"
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+  - tool: query_metadata
+    params:
+      project_id: "P002"
+  - tool: query_metadata
+    params:
+      project_id: "P003"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "某长大隧道1号"
+        type: tunnel
+        location: "西南山区-川藏铁路"
+        total_length: 12580.0
+        construction_status: "在建"
+      - project_id: "P002"
+        name: "某长大隧道2号"
+        type: tunnel
+        location: "西南山区-川藏铁路"
+        total_length: 15820.0
+        construction_status: "在建"
+      - project_id: "P003"
+        name: "某特长隧道"
+        type: tunnel
+        location: "西南山区-渝昆高铁"
+        total_length: 21200.0
+        construction_status: "规划中"
+      - project_id: "P004"
+        name: "某铁路隧道"
+        type: tunnel
+        location: "西南山区-成昆复线"
+        total_length: 8650.0
+        construction_status: "已完工"
+    message: "查询到 4 个隧道工程项目（3个在建/规划，1个已完工）"
+    metadata: {count: 4, region: "西南山区", total_length: 58250.0}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D-P001-BH"
+        name: "隧道1号_钻孔数据"
+        data_type: "BOREHOLE"
+        borehole_count: 86
+        attributes: [层位, 岩性, RQD, Vp]
+      - dataset_id: "D-P001-TSP"
+        name: "隧道1号_TSP数据"
+        data_type: "TSP"
+        forecast_count: 125
+        attributes: [Vp, Vs, 密度, 泊松比]
+      - dataset_id: "D-P001-GPR"
+        name: "隧道1号_GPR数据"
+        data_type: "GPR"
+        coverage_length: 12580.0
+        attributes: [反射强度, 衰减系数]
+    message: "隧道1号：3类数据，共86个钻孔、125次TSP预报"
+    metadata: {count: 3, project_id: P001}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D-P002-BH"
+        name: "隧道2号_钻孔数据"
+        data_type: "BOREHOLE"
+        borehole_count: 102
+        attributes: [层位, 岩性, RQD, Vp]
+      - dataset_id: "D-P002-TSP"
+        name: "隧道2号_TSP数据"
+        data_type: "TSP"
+        forecast_count: 158
+        attributes: [Vp, Vs, 密度, 泊松比]
+      - dataset_id: "D-P002-ERT"
+        name: "隧道2号_高密度电法"
+        data_type: "ERT"
+        survey_count: 12
+        attributes: [视电阻率]
+    message: "隧道2号：3类数据，共102个钻孔、158次TSP预报"
+    metadata: {count: 3, project_id: P002}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D-P003-BH"
+        name: "特长隧道_设计钻孔"
+        data_type: "BOREHOLE"
+        borehole_count: 45
+        attributes: [层位, 岩性, RQD]
+      - dataset_id: "D-P003-GPR"
+        name: "特长隧道_GPR初勘"
+        data_type: "GPR"
+        coverage_length: 15000.0
+        attributes: [反射强度]
+    message: "特长隧道：2类数据（规划阶段，数据较少）"
+    metadata: {count: 2, project_id: P003, status: planning}

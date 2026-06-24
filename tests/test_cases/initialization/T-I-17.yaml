@@ -1,0 +1,206 @@
+id: T-I-17
+name: "L2-查询整个隧道工程下的所有数据"
+agent: InitializationAgent
+level: L2
+prompt: "查询某长大隧道工程下的所有工点及其包含的各类探测数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_hierarchy
+    params:
+      level: work_site
+      project_id: "P001"
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "某长大隧道工程"
+        type: tunnel
+        location: "西南山区"
+        total_length: 12580.0
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_hierarchy:
+    success: true
+    data:
+      - site_id: "S001"
+        name: "进口工点"
+        mileage_prefix: "DK"
+        start_mileage: 0.0
+        end_mileage: 3200.0
+        tunnel_length: 3200.0
+      - site_id: "S002"
+        name: "1号斜井工点"
+        mileage_prefix: "DK"
+        start_mileage: 2800.0
+        end_mileage: 4200.0
+        tunnel_length: 1400.0
+      - site_id: "S003"
+        name: "洞身工点1"
+        mileage_prefix: "DK"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+        tunnel_length: 2600.0
+      - site_id: "S004"
+        name: "2号斜井工点"
+        mileage_prefix: "DK"
+        start_mileage: 6200.0
+        end_mileage: 7800.0
+        tunnel_length: 1600.0
+      - site_id: "S005"
+        name: "洞身工点2"
+        mileage_prefix: "DK"
+        start_mileage: 7800.0
+        end_mileage: 10500.0
+        tunnel_length: 2700.0
+      - site_id: "S006"
+        name: "出口工点"
+        mileage_prefix: "DK"
+        start_mileage: 10500.0
+        end_mileage: 12580.0
+        tunnel_length: 2080.0
+    message: "查询到 6 个工点"
+    metadata: {count: 6}
+  query_metadata:
+    success: true
+    data:
+      # TSP数据
+      - dataset_id: "D001"
+        name: "TSP_进口段_0-3200m.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_import_0_3200.dat"
+        start_mileage: 0.0
+        end_mileage: 3200.0
+        site_id: "S001"
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      - dataset_id: "D002"
+        name: "TSP_洞身1_4200-6800m.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_mid1_4200_6800.dat"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+        site_id: "S003"
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      - dataset_id: "D003"
+        name: "TSP_洞身2_7800-10500m.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_mid2_7800_10500.dat"
+        start_mileage: 7800.0
+        end_mileage: 10500.0
+        site_id: "S005"
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      - dataset_id: "D004"
+        name: "TSP_出口段_10500-12580m.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_export_10500_12580.dat"
+        start_mileage: 10500.0
+        end_mileage: 12580.0
+        site_id: "S006"
+        attributes: [P波速度, S波速度, 密度, 泊松比]
+      # GPR数据
+      - dataset_id: "D005"
+        name: "GPR_进口段_0-3200m.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_import_0_3200.raw"
+        start_mileage: 0.0
+        end_mileage: 3200.0
+        site_id: "S001"
+        attributes: [反射波振幅, 介电常数, 雷达波速]
+      - dataset_id: "D006"
+        name: "GPR_洞身1_4200-6800m.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_mid1_4200_6800.raw"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+        site_id: "S003"
+        attributes: [反射波振幅, 介电常数, 雷达波速]
+      - dataset_id: "D007"
+        name: "GPR_洞身2_7800-10500m.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_mid2_7800_10500.raw"
+        start_mileage: 7800.0
+        end_mileage: 10500.0
+        site_id: "S005"
+        attributes: [反射波振幅, 介电常数, 雷达波速]
+      - dataset_id: "D008"
+        name: "GPR_出口段_10500-12580m.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_export_10500_12580.raw"
+        start_mileage: 10500.0
+        end_mileage: 12580.0
+        site_id: "S006"
+        attributes: [反射波振幅, 介电常数, 雷达波速]
+      # 钻孔数据
+      - dataset_id: "D009"
+        name: "钻孔_进口段_10孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/bh_import_10.csv"
+        start_mileage: 0.0
+        end_mileage: 3200.0
+        site_id: "S001"
+        borehole_count: 10
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+      - dataset_id: "D010"
+        name: "钻孔_洞身1_15孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/bh_mid1_15.csv"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+        site_id: "S003"
+        borehole_count: 15
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+      - dataset_id: "D011"
+        name: "钻孔_洞身2_12孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/bh_mid2_12.csv"
+        start_mileage: 7800.0
+        end_mileage: 10500.0
+        site_id: "S005"
+        borehole_count: 12
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+      - dataset_id: "D012"
+        name: "钻孔_出口段_8孔.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/bh_export_8.csv"
+        start_mileage: 10500.0
+        end_mileage: 12580.0
+        site_id: "S006"
+        borehole_count: 8
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度]
+      # 地形数据
+      - dataset_id: "D013"
+        name: "DEM_全隧道范围_5m分辨率.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem/DEM_full_tunnel.tif"
+        resolution: 5.0
+        coverage: "全隧道地表"
+        site_id: "P001"
+      - dataset_id: "D014"
+        name: "DOM_全隧道范围_0.2m分辨率.tif"
+        data_type: "DOM"
+        file_path: "data/raw/dom/DOM_full_tunnel.tif"
+        resolution: 0.2
+        coverage: "全隧道地表"
+        site_id: "P001"
+      # 地质剖面数据
+      - dataset_id: "D015"
+        name: "地质纵断面图.pdf"
+        data_type: "GEOLOGICAL_PROFILE"
+        file_path: "data/raw/profile/profile_longitudinal.pdf"
+        site_id: "P001"
+      - dataset_id: "D016"
+        name: "典型横断面图集.dxf"
+        data_type: "CROSS_SECTION"
+        file_path: "data/raw/section/sections_typical.dxf"
+        site_id: "P001"
+        section_count: 25
+    message: "查询到 16 个数据集（TSP:4, GPR:4, 钻孔:4, 地形:2, 剖面:2）"
+    metadata: {count: 16, data_types: [TSP, GPR, BOREHOLE, DEM, DOM, GEOLOGICAL_PROFILE, CROSS_SECTION]}

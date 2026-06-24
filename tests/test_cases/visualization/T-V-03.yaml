@@ -1,0 +1,17 @@
+id: T-V-03
+name: "L1-相机聚焦到指定实体"
+agent: VisualizationAgent
+level: L1
+prompt: "将相机聚焦到实体3和实体5，让它们充满视口"
+expected_tool_sequence:
+  - tool: focus_on_entity
+    params:
+      entity_ids: [3, 5]
+expected_final_state:
+  success: true
+mock_responses:
+  focus_on_entity:
+    success: true
+    data: {entity_ids: [3, 5], view_id: -1}
+    message: "相机聚焦完成"
+    metadata: {}

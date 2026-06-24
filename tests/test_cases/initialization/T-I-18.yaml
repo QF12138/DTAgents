@@ -1,0 +1,170 @@
+id: T-I-18
+name: "L2-多数据源联合查询（GPR+TSP+钻孔）"
+agent: InitializationAgent
+level: L2
+prompt: "查询DK5+000至DK5+800里程范围内的GPR雷达数据、TSP超前预报数据和钻孔数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: work_site
+      mileage_infos: ["DK5+000", "DK5+800"]
+  - tool: query_metadata
+    params:
+      mileage_range: [5000.0, 5800.0]
+      data_type: "GPR"
+  - tool: query_metadata
+    params:
+      mileage_range: [5000.0, 5800.0]
+      data_type: "TSP"
+  - tool: query_metadata
+    params:
+      mileage_range: [5000.0, 5800.0]
+      data_type: "BOREHOLE"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - site_id: "S003"
+        name: "洞身工点1"
+        mileage_prefix: "DK"
+        start_mileage: 4200.0
+        end_mileage: 6800.0
+      - site_id: "S005"
+        name: "洞身工点2"
+        mileage_prefix: "DK"
+        start_mileage: 7800.0
+        end_mileage: 10500.0
+    message: "查询到 2 个工点与目标里程区间重叠"
+    metadata: {count: 2, overlap_sites: [S003, S005]}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D101"
+        name: "GPR_DK5+000-5800m_第1测线.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_DK5+000-5800_Line1.raw"
+        start_mileage: 5000.0
+        end_mileage: 5400.0
+        site_id: "S003"
+        survey_line: 1
+        attributes: [反射波振幅, 介电常数, 雷达波速, 衰减系数]
+      - dataset_id: "D102"
+        name: "GPR_DK5+000-5800m_第2测线.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_DK5+000-5800_Line2.raw"
+        start_mileage: 5000.0
+        end_mileage: 5400.0
+        site_id: "S003"
+        survey_line: 2
+        attributes: [反射波振幅, 介电常数, 雷达波速, 衰减系数]
+      - dataset_id: "D103"
+        name: "GPR_DK5+400-5800m_第3测线.raw"
+        data_type: "GPR"
+        file_path: "data/raw/gpr/GPR_DK5+400-5800_Line3.raw"
+        start_mileage: 5400.0
+        end_mileage: 5800.0
+        site_id: "S003"
+        survey_line: 3
+        attributes: [反射波振幅, 介电常数, 雷达波速, 衰减系数]
+    message: "查询到 3 个 GPR 数据集"
+    metadata: {count: 3, total_survey_lines: 3, coverage: "DK5+000-DK5+800"}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D201"
+        name: "TSP_预报_里程DK5+100-300.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_forecast_DK5+100-300.dat"
+        start_mileage: 5100.0
+        end_mileage: 5300.0
+        site_id: "S003"
+        forecast_range: 150.0
+        attributes: [P波速度, S波速度, 密度, 泊松比, 弹性模量, 剪切模量]
+      - dataset_id: "D202"
+        name: "TSP_预报_里程DK5+300-500.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_forecast_DK5+300-500.dat"
+        start_mileage: 5300.0
+        end_mileage: 5500.0
+        site_id: "S003"
+        forecast_range: 150.0
+        attributes: [P波速度, S波速度, 密度, 泊松比, 弹性模量, 剪切模量]
+      - dataset_id: "D203"
+        name: "TSP_预报_里程DK5+500-700.dat"
+        data_type: "TSP"
+        file_path: "data/raw/tsp/TSP_forecast_DK5+500-700.dat"
+        start_mileage: 5500.0
+        end_mileage: 5700.0
+        site_id: "S003"
+        forecast_range: 150.0
+        attributes: [P波速度, S波速度, 密度, 泊松比, 弹性模量, 剪切模量]
+    message: "查询到 3 个 TSP 数据集（预报范围重叠覆盖DK5+100-DK5+700）"
+    metadata: {count: 3, coverage: "DK5+100-DK5+700", forecast_type: 3D_reversed]
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D301"
+        name: "钻孔_深度60m_BH01.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/BH01_DK5+080_depth60m.csv"
+        start_mileage: 5080.0
+        end_mileage: 5080.0
+        site_id: "S003"
+        borehole_name: "BH01"
+        total_depth: 60.0
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度, 横波速度, 密度]
+      - dataset_id: "D302"
+        name: "钻孔_深度80m_BH02.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/BH02_DK5+150_depth80m.csv"
+        start_mileage: 5150.0
+        end_mileage: 5150.0
+        site_id: "S003"
+        borehole_name: "BH02"
+        total_depth: 80.0
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度, 横波速度, 密度]
+      - dataset_id: "D303"
+        name: "钻孔_深度70m_BH03.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/BH03_DK5+250_depth70m.csv"
+        start_mileage: 5250.0
+        end_mileage: 5250.0
+        site_id: "S003"
+        borehole_name: "BH03"
+        total_depth: 70.0
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度, 横波速度, 密度]
+      - dataset_id: "D304"
+        name: "钻孔_深度90m_BH04.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/BH04_DK5+380_depth90m.csv"
+        start_mileage: 5380.0
+        end_mileage: 5380.0
+        site_id: "S003"
+        borehole_name: "BH04"
+        total_depth: 90.0
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度, 横波速度, 密度]
+      - dataset_id: "D305"
+        name: "钻孔_深度75m_BH05.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/BH05_DK5+520_depth75m.csv"
+        start_mileage: 5520.0
+        end_mileage: 5520.0
+        site_id: "S003"
+        borehole_name: "BH05"
+        total_depth: 75.0
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度, 横波速度, 密度]
+      - dataset_id: "D306"
+        name: "钻孔_深度65m_BH06.csv"
+        data_type: "BOREHOLE"
+        file_path: "data/raw/borehole/BH06_DK5+680_depth65m.csv"
+        start_mileage: 5680.0
+        end_mileage: 5680.0
+        site_id: "S003"
+        borehole_name: "BH06"
+        total_depth: 65.0
+        attributes: [层位深度, 岩性, RQD, 完整性系数, 纵波速度, 横波速度, 密度]
+    message: "查询到 6 个钻孔数据，总深度 440m"
+    metadata: {count: 6, total_boreholes: 6, total_depth: 440.0, avg_depth: 73.3}

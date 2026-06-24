@@ -1,0 +1,67 @@
+id: T-MA-06
+name: "三阶段协同-加载DOM贴纹理后显示"
+agent: multi_agent
+level: L2
+prompt: "加载示例隧道工程的DOM正射影像和DEM数据，建立带纹理的三维地表模型，然后在可视化视图中以等轴侧视角展示"
+expected_agents:
+  - InitializationAgent
+  - ModelingAgent
+  - VisualizationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params: {}
+  - tool: import_dataset
+    params: {}
+  - tool: delaunay_triangulation
+    params: {}
+  - tool: apply_texture
+    params: {}
+  - tool: set_standard_view
+    params:
+      direction: "isometric"
+expected_final_state:
+  success: true
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D001"
+        name: "dem_2024.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem_2024.tif"
+      - dataset_id: "D002"
+        name: "dom_2024.tif"
+        data_type: "DOM"
+        file_path: "data/raw/dom_2024.tif"
+    message: "查询到 2 个数据集"
+    metadata: {count: 2}
+  import_dataset:
+    success: true
+    data: {entity_id: 1001}
+    message: "成功加载数据"
+    metadata: {}
+  delaunay_triangulation:
+    success: true
+    data: {entity_id: 2001}
+    message: "三角剖分完成，TIN 实体 ID: 2001"
+    metadata: {}
+  apply_texture:
+    success: true
+    data: {entity_id: 2001}
+    message: "纹理贴图完成"
+    metadata: {}
+  set_standard_view:
+    success: true
+    data: {direction: "isometric"}
+    message: "视角切换成功"
+    metadata: {}

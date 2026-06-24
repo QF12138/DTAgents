@@ -1,0 +1,250 @@
+id: T-V-09
+name: "L3-长大隧道三维综合地质模型可视化"
+agent: VisualizationAgent
+level: L3
+prompt: "将完整的三维地质模型进行专业可视化展示：创建四分视图（平面图、正视图、侧视图、等轴侧），在等轴侧视图中叠加显示地表模型、各地层界面和围岩分级体切片，设置合理的透明度显示内部结构"
+expected_tool_sequence:
+  - tool: create_view
+    params:
+      layout: "quad"
+      name: "综合地质视图"
+  - tool: import_entity
+    params:
+      entity_id: 7001
+      layer_name: "地表TIN"
+  - tool: import_entity
+    params:
+      entity_id: 7002
+      layer_name: "砂泥岩分界面"
+  - tool: import_entity
+    params:
+      entity_id: 7003
+      layer_name: "泥灰岩分界面"
+  - tool: import_entity
+    params:
+      entity_id: 7004
+      layer_name: "围岩分级体"
+  - tool: set_entity_color
+    params:
+      entity_id: 7001
+      color: [139, 119, 101]
+      opacity: 1.0
+  - tool: set_entity_color
+    params:
+      entity_id: 7002
+      color: [255, 200, 100]
+      opacity: 0.8
+  - tool: set_entity_color
+    params:
+      entity_id: 7003
+      color: [200, 150, 100]
+      opacity: 0.8
+  - tool: set_entity_color
+    params:
+      entity_id: 7004
+      color_mode: "by_attribute"
+      attribute: "RMR_grade"
+      color_map: "traffic_light"
+  - tool: set_voxel_slice
+    params:
+      entity_id: 7004
+      slice_type: "axial"
+      position: -30.0
+      show_mesh: true
+  - tool: set_standard_view
+    params:
+      view_id: 3
+      direction: "isometric"
+  - tool: add_scene_label
+    params:
+      text: "DK5+000 - DK8+000三维地质模型"
+      position: [4500.0, 150.0, 60.0]
+      font_size: 18
+  - tool: add_scale_bar
+    params:
+      view_id: 3
+      length: 500.0
+      unit: "m"
+  - tool: add_compass
+    params:
+      view_id: 3
+      position: "top_right"
+      size: 80
+  - tool: add_cross_section_marker
+    params:
+      mileage: ["DK5+200", "DK6+500", "DK7+800"]
+      color: [255, 0, 0]
+  - tool: focus_on_entity
+    params:
+      entity_ids: [7001, 7002, 7003, 7004]
+      padding: 0.1
+  - tool: capture_view
+    params:
+      view_id: 3
+      output_path: "output/visualization/3D_geological_model.png"
+      resolution: [1920, 1080]
+      transparent_background: false
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  create_view:
+    success: true
+    data:
+      view_id: 3
+      layout: "quad"
+      sub_views: [3.1, 3.2, 3.3, 3.4]
+    message: "四分视图创建成功"
+    metadata: {}
+  import_entity:
+    success: true
+    data:
+      entity_id: 7001
+      layer_name: "地表TIN"
+      vertex_count: 48500
+      face_count: 96700
+    message: "地表TIN导入成功"
+    metadata: {geometry_type: TIN, size: medium}
+  import_entity:
+    success: true
+    data:
+      entity_id: 7002
+      layer_name: "砂泥岩分界面"
+      vertex_count: 52300
+      face_count: 104200
+    message: "砂泥岩分界面导入成功"
+    metadata: {depth: -35m, geometry_type: isosurface}
+  import_entity:
+    success: true
+    data:
+      entity_id: 7003
+      layer_name: "泥灰岩分界面"
+      vertex_count: 61200
+      face_count: 122100
+    message: "泥灰岩分界面导入成功"
+    metadata: {depth: -65m, geometry_type: isosurface}
+  import_entity:
+    success: true
+    data:
+      entity_id: 7004
+      layer_name: "围岩分级体"
+      grid_dimensions: [1600, 400, 66]
+      voxel_count: 42240000
+    message: "围岩分级体导入成功"
+    metadata: {geometry_type: voxel_grid, size: large}
+  set_entity_color:
+    success: true
+    data:
+      entity_id: 7001
+      color: [139, 119, 101]
+      opacity: 1.0
+    message: "颜色设置成功"
+    metadata: {}
+  set_entity_color:
+    success: true
+    data:
+      entity_id: 7002
+      color: [255, 200, 100]
+      opacity: 0.8
+    message: "颜色设置成功"
+    metadata: {}
+  set_entity_color:
+    success: true
+    data:
+      entity_id: 7003
+      color: [200, 150, 100]
+      opacity: 0.8
+    message: "颜色设置成功"
+    metadata: {}
+  set_entity_color:
+    success: true
+    data:
+      entity_id: 7004
+      color_mode: "by_attribute"
+      attribute: "RMR_grade"
+      color_map: "traffic_light"
+      color_ramp:
+        I_Excellent: [0, 255, 0]
+        II_Good: [255, 255, 0]
+        III_Fair: [255, 165, 0]
+        IV_Poor: [255, 0, 0]
+        V_VeryPoor: [128, 0, 128]
+    message: "属性着色成功"
+    metadata: {attribute: RMR_grade, color_map: traffic_light}
+  set_voxel_slice:
+    success: true
+    data:
+      entity_id: 7004
+      slice_type: "axial"
+      position: -30.0
+      slice_entity_id: 8001
+      cross_section_area: 640000
+    message: "体切片创建成功"
+    metadata: {depth: -30m, slice_type: axial}
+  set_standard_view:
+    success: true
+    data:
+      view_id: 3
+      direction: "isometric"
+      camera_position: [6500.0, 0.0, 500.0]
+      camera_target: [6500.0, 0.0, -50.0]
+    message: "等轴侧视角设置成功"
+    metadata: {}
+  add_scene_label:
+    success: true
+    data:
+      label_id: "L001"
+      text: "DK5+000 - DK8+000三维地质模型"
+      position: [4500.0, 150.0, 60.0]
+      font_size: 18
+    message: "场景标签添加成功"
+    metadata: {}
+  add_scale_bar:
+    success: true
+    data:
+      view_id: 3
+      length: 500.0
+      unit: "m"
+      pixel_length: 120
+      scale: "1:1000"
+    message: "比例尺添加成功"
+    metadata: {}
+  add_compass:
+    success: true
+    data:
+      view_id: 3
+      position: "top_right"
+      size: 80
+      north_direction: 0.0
+    message: "指北针添加成功"
+    metadata: {}
+  add_cross_section_marker:
+    success: true
+    data:
+      markers: 3
+      positions:
+        - mileage: "DK5+200"
+          color: [255, 0, 0]
+        - mileage: "DK6+500"
+          color: [255, 0, 0]
+        - mileage: "DK7+800"
+          color: [255, 0, 0]
+    message: "横断面标记添加成功"
+    metadata: {}
+  focus_on_entity:
+    success: true
+    data:
+      entity_ids: [7001, 7002, 7003, 7004]
+      bounding_box: [4900.0, -200.0, -130.0, 8100.0, 200.0, 50.0]
+      padding: 0.1
+    message: "相机聚焦完成"
+    metadata: {}
+  capture_view:
+    success: true
+    data:
+      view_id: 3
+      output_path: "output/visualization/3D_geological_model.png"
+      resolution: [1920, 1080]
+      file_size: "2.4MB"
+    message: "视图截图保存成功"
+    metadata: {format: PNG, size: [1920, 1080]}

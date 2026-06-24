@@ -1,0 +1,49 @@
+id: T-P-08
+name: "L3-三步-AHD钻孔完整预处理流水线（里程转换→洞内裁剪→空间采样）"
+agent: PreprocessingAgent
+level: L3
+prompt: "对AHD钻孔数据实体1010，先用中线2001和纵断面2002做里程到三维坐标转换，再沿中线2001以50米缓冲区裁剪里程5000-5500的洞内范围，最后对裁剪范围内的数据按0.5米分辨率做空间采样"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1010
+      transform_type: "mileage_to_spatial"
+      centerline_id: 2001
+      profile_id: 2002
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 3001
+      centerline_id: 2001
+      coverage_range: 50.0
+      clip_mode: "tunnel"
+      mileage_range: [5000.0, 5500.0]
+  - tool: spatial_sample
+    params:
+      dataset_id: 3001
+      resolution: 0.5
+      boundary_entity_id: 4001
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3001}
+    file_path: null
+    message: "里程转三维坐标完成，新实体ID: 3001"
+    metadata: {}
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4001}
+    file_path: null
+    message: "洞内三维缓冲区裁剪完成，边界实体ID: 4001"
+    metadata: {}
+  spatial_sample:
+    success: true
+    data: {entity_id: 5001, sample_count: 2480}
+    file_path: null
+    message: "空间采样完成，采样点数: 2480，结果实体ID: 5001"
+    metadata: {}

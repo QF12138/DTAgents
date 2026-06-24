@@ -1,0 +1,17 @@
+id: T-V-02
+name: "L1-切换到俯视图"
+agent: VisualizationAgent
+level: L1
+prompt: "将三维视图切换到俯视角度（从上往下看）"
+expected_tool_sequence:
+  - tool: set_standard_view
+    params:
+      direction: "top"
+expected_final_state:
+  success: true
+mock_responses:
+  set_standard_view:
+    success: true
+    data: {direction: "top", view_id: -1}
+    message: "视角切换成功"
+    metadata: {}

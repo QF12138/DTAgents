@@ -1,0 +1,39 @@
+id: T-I-06
+name: "L2-两步顺序-里程范围查GPR数据"
+agent: InitializationAgent
+level: L2
+prompt: "查询里程DK5+128至DK5+256范围内的GPR地质雷达探测数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: work_site
+      mileage_infos: ["DK5+128", "DK5+256"]
+  - tool: query_metadata
+    params:
+      site_ids: ["S002"]
+      mileage_range: [5128.0, 5256.0]
+      data_type: "GPR"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - site_id: "S002"
+        name: "中间段"
+        start_mileage: 5000.0
+        end_mileage: 5500.0
+    message: "查询到 1 个工点，里程区间 mileage_range=[5128.0, 5256.0]"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D011"
+        name: "gpr_dk10_20.dat"
+        data_type: "GPR"
+        file_path: "data/raw/gpr_dk10_20.dat"
+        start_mileage: 10000.0
+        end_mileage: 20000.0
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}

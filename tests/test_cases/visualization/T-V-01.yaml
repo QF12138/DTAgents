@@ -1,0 +1,18 @@
+id: T-V-01
+name: "L1-设置实体线框显示模式"
+agent: VisualizationAgent
+level: L1
+prompt: "将实体ID为1的地质模型切换到线框（wireframe）显示模式"
+expected_tool_sequence:
+  - tool: configure_entity
+    params:
+      entity_ids: [1]
+      mode: "wireframe"
+expected_final_state:
+  success: true
+mock_responses:
+  configure_entity:
+    success: true
+    data: {updated_entities: [1]}
+    message: "实体配置更新成功"
+    metadata: {}

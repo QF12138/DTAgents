@@ -1,0 +1,87 @@
+id: T-MA-08
+name: "完整三阶段-DEM+DOM加载建模可视化"
+agent: multi_agent
+level: L3
+prompt: "完整流程：加载示例隧道工程的DEM和DOM数据，构建带纹理的三维地表模型，然后在三维视图中以等轴侧视角展示最终效果"
+expected_agents:
+  - InitializationAgent
+  - ModelingAgent
+  - VisualizationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/dem_2024.tif"
+      dataset_type: "DEM"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/dom_2024.tif"
+      dataset_type: "DOM"
+  - tool: delaunay_triangulation
+    params:
+      raster_id: 1001
+  - tool: apply_texture
+    params:
+      surface_entity_id: 2001
+      dom_dataset_id: 1002
+  - tool: set_standard_view
+    params:
+      direction: "isometric"
+  - tool: focus_on_entity
+    params:
+      entity_ids: [2001]
+expected_final_state:
+  success: true
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D001"
+        name: "dem_2024.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem_2024.tif"
+      - dataset_id: "D002"
+        name: "dom_2024.tif"
+        data_type: "DOM"
+        file_path: "data/raw/dom_2024.tif"
+    message: "查询到 2 个数据集"
+    metadata: {count: 2}
+  # 注：框架每个工具名只支持一个 mock 响应；DEM import 使用此 mock（entity_id:1001），
+  # DOM import 同样使用此 mock，但 apply_texture 中 dom_dataset_id 应填 1002（DOM 的逻辑 ID）
+  import_dataset:
+    success: true
+    data: {entity_id: 1001}
+    message: "成功加载 DEM 数据，实体 ID: 1001"
+    metadata: {}
+  delaunay_triangulation:
+    success: true
+    data: {entity_id: 2001}
+    message: "三角剖分完成，TIN 实体 ID: 2001"
+    metadata: {}
+  apply_texture:
+    success: true
+    data: {entity_id: 2001}
+    message: "纹理贴图完成"
+    metadata: {}
+  set_standard_view:
+    success: true
+    data: {direction: "isometric"}
+    message: "视角切换成功"
+    metadata: {}
+  focus_on_entity:
+    success: true
+    data: {entity_ids: [2001]}
+    message: "相机聚焦完成"
+    metadata: {}

@@ -1,0 +1,35 @@
+id: T-MA-01
+name: "简单路由-查询数据路由至InitializationAgent"
+agent: multi_agent
+level: L1
+prompt: "请查找工程P001下的DEM高程数据"
+expected_agents:
+  - InitializationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "DEM"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D001"
+        name: "dem_2024.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem_2024.tif"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}

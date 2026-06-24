@@ -1,0 +1,21 @@
+id: T-MA-11
+name: "错误恢复-加载不存在工程后Planner应停止"
+agent: multi_agent
+level: L4
+prompt: "加载工程'不存在工程XYZ'的数据并进行三维建模"
+expected_agents:
+  - InitializationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+# 期望行为：InitializationAgent 返回空结果后告知 Planner，
+# Planner 应停止整个流程，不应继续调用 ModelingAgent
+expected_final_state:
+  success: true  # Agent 正确停止并报告也算成功
+mock_responses:
+  query_hierarchy:
+    success: true
+    data: []
+    message: "未找到匹配的工程"
+    metadata: {count: 0}

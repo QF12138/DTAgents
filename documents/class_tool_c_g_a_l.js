@@ -1,0 +1,28 @@
+var class_tool_c_g_a_l =
+[
+    [ "MakeBoolDiffer", "class_tool_c_g_a_l.html#a864e0498fadf27fff4ab0805bb07d8c9", null ],
+    [ "MakeBoolDiffer", "class_tool_c_g_a_l.html#a1e9fefc34f62b92b2af77719935ebe01", null ],
+    [ "MakeBoolInter", "class_tool_c_g_a_l.html#a0b79e482bb5230bce9b2392204b1810b", null ],
+    [ "MakeBoolInter", "class_tool_c_g_a_l.html#ae9061b43ffbe9610a10e105bd0d51cbb", null ],
+    [ "MakeBoolUnion", "class_tool_c_g_a_l.html#a6696b65278b1d2432ce22d155f2ae088", null ],
+    [ "MakeBoolUnion", "class_tool_c_g_a_l.html#abf2fa0db8051de07b6877e96b58ce465", null ],
+    [ "MakeMultiPolyCDTinSolids", "class_tool_c_g_a_l.html#ad8773d4f794a1f121eb6032d0e0ef6e7", null ],
+    [ "MakePolyCDMultiTinSolid", "class_tool_c_g_a_l.html#a521edd0d49786025ec7d28e71b05511a", null ],
+    [ "MakePolyCDTinMesh", "class_tool_c_g_a_l.html#a99f121e05edb4e4d194c24afd0ddc2ce", null ],
+    [ "MakePolyCDTinSolid", "class_tool_c_g_a_l.html#a0fb4ee7374da298632b5eeea7eaa9c09", null ],
+    [ "MakeRectDTinMesh", "class_tool_c_g_a_l.html#af875da03276877d1a69fd33e9e424c20", null ],
+    [ "MakeSimpleTinMesh", "class_tool_c_g_a_l.html#a85f8fc3b9d614266890ce45d5f56d32e", null ],
+    [ "MergeToOne", "class_tool_c_g_a_l.html#ab70c49840b43c27b64975b0dd2907d8c", null ],
+    [ "ReMesh", "class_tool_c_g_a_l.html#a02f5f23f7b4200be228b8d86e75cba72", null ],
+    [ "RemoveCap", "class_tool_c_g_a_l.html#a90c9851d97dfa33ca40b0065df3d5a81", null ],
+    [ "Repair", "class_tool_c_g_a_l.html#ad73d840a36760d7d2306925e4c206c45", null ],
+    [ "SewingPoints", "class_tool_c_g_a_l.html#aac06df563a634f8278e8a688bc9a97f3", null ],
+    [ "SplitSurface", "class_tool_c_g_a_l.html#abab3ba3f168e6333b0e3157eb367d512", null ],
+    [ "ToCGALMesh", "class_tool_c_g_a_l.html#a3ac11f0c061227acf8f8f99129258830", null ],
+    [ "ToCGALMesh", "class_tool_c_g_a_l.html#a15bd170451e558681f2c1e9f54615f78", null ],
+    [ "ToCGALMesh", "class_tool_c_g_a_l.html#a6e6b85c037cb671951039d79a08880b1", null ],
+    [ "ToCompMesh", "class_tool_c_g_a_l.html#a6218b23a394221a0adf49e5e6c906c69", null ],
+    [ "ToCompMesh", "class_tool_c_g_a_l.html#a331f3ace4715441d041351f0f554b962", null ],
+    [ "ToCompMesh", "class_tool_c_g_a_l.html#aa8765751df8ab160930878a759d18953", null ],
+    [ "UVMap", "class_tool_c_g_a_l.html#a989b6586ddcd28d62fa0bd5aa73b9f00", null ]
+];

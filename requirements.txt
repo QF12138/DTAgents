@@ -1,0 +1,25 @@
+# ——— Web API（数据管理前端后端）———
+fastapi>=0.111
+uvicorn[standard]>=0.29
+
+# ——— 智能体框架（必须）———
+chainlit>=1.1
+langgraph>=0.2
+langgraph-supervisor>=0.0.11
+langchain-anthropic>=0.3
+langchain-openai>=0.2
+langchain-ollama>=0.2       # 本地 Ollama 支持（需先安装并运行 Ollama 服务）
+
+# ——— 数据库（必须）———
+duckdb>=0.10              # 元数据索引库（pip直装，无系统依赖）
+
+# ——— 基础数据模型（必须）———
+pydantic>=2.5             # 工具输入输出类型校验
+numpy>=1.26               # 数组数据类型（接口层使用）
+
+# ——— 工具接口预留（仅import，实现由自有库提供）———
+# 以下为预留接口，由用户自有库填充：
+# - 数据读取器: from your_lib.readers import *
+# - 预处理算法: from your_lib.preprocessing import *
+# - 建模算法:   from your_lib.modeling import *
+# - 渲染引擎:   from your_lib.visualization import *

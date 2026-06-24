@@ -1,0 +1,35 @@
+id: T-I-05
+name: "L2-两步顺序-工程名查TSP数据"
+agent: InitializationAgent
+level: L2
+prompt: "请查询隧道工程A项目下的TSP超前地质预报数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "TSP"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+        type: tunnel
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D010"
+        name: "tsp_dk5.csv"
+        data_type: "TSP"
+        file_path: "data/raw/tsp_dk5.csv"
+        description: "DK5段TSP数据"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}

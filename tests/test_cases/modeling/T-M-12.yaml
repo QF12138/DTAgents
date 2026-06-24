@@ -1,0 +1,25 @@
+id: T-M-12
+name: "L4-复杂参数-地质体规则参数填充（倾角走向）"
+agent: ModelingAgent
+level: L4
+prompt: "建立一个砂岩岩层地质体模型，岩层倾角30度，走向N45°E（方位角45度），厚度15米，建模范围从bbox [0,0,-200,1000,1000,0]"
+expected_tool_sequence:
+  - tool: model_geological_body
+    params:
+      rules:
+        - body_type: "layer"
+          lithology: "砂岩"
+          dip: 30.0
+          strike: 45.0
+          thickness: 15.0
+      bbox: [0, 0, -200, 1000, 1000, 0]
+expected_final_state:
+  success: true
+  contains_field: file_path
+# 测试点：agent 能正确解析地质术语（倾角、走向）并填入 rules 列表的嵌套参数
+mock_responses:
+  model_geological_body:
+    success: true
+    file_path: "data/processed/sandstone_layer.vtk"
+    message: "地质体建模完成（倾角30°，走向N45E）"
+    metadata: {}

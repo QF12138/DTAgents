@@ -1,0 +1,19 @@
+id: T-MA-03
+name: "简单路由-可视化任务路由至VisualizationAgent"
+agent: multi_agent
+level: L1
+prompt: "将当前场景中所有实体切换到俯视视角"
+expected_agents:
+  - VisualizationAgent
+expected_tool_sequence:
+  - tool: set_standard_view
+    params:
+      direction: "top"
+expected_final_state:
+  success: true
+mock_responses:
+  set_standard_view:
+    success: true
+    data: {direction: "top", view_id: -1}
+    message: "视角切换成功"
+    metadata: {}

@@ -1,0 +1,24 @@
+id: T-I-03
+name: "L1-按工程ID查询DEM数据"
+agent: InitializationAgent
+level: L1
+prompt: "查询工程P001下有哪些DEM数字高程模型数据"
+expected_tool_sequence:
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "DEM"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D001"
+        name: "dem_2024.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem_2024.tif"
+        description: "2024年DEM数据"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}

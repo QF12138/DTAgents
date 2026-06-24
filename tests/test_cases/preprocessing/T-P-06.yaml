@@ -1,0 +1,31 @@
+id: T-P-06
+name: "L2-两步-两类数据连续CRS坐标系转换"
+agent: PreprocessingAgent
+level: L2
+prompt: "将DEM实体1001和DOM实体1002均从EPSG:4326转换到工程坐标系EPSG:4547"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1001
+      transform_type: "crs_transform"
+      source_crs: "EPSG:4326"
+      target_crs: "EPSG:4547"
+  - tool: project_transform
+    params:
+      dataset_id: 1002
+      transform_type: "crs_transform"
+      source_crs: "EPSG:4326"
+      target_crs: "EPSG:4547"
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3002}
+    file_path: null
+    message: "坐标系转换完成，新实体ID: 3002"
+    metadata: {}

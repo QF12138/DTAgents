@@ -1,0 +1,71 @@
+id: T-MA-10
+name: "完整三阶段-里程段超前预报完整处理展示"
+agent: multi_agent
+level: L3
+prompt: "对里程DK10+000到DK20+000段的所有超前地质预报数据（TSP、TEM、GPR）进行完整处理：加载数据后，建立该区段的综合地质预测模型，最后在三维视图中展示"
+expected_agents:
+  - InitializationAgent
+  - ModelingAgent
+  - VisualizationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: work_site
+      mileage_infos:
+        - "DK10+000"
+  - tool: query_metadata
+    params: {}
+  - tool: import_dataset
+    params: {}
+  - tool: interpolate_spatial
+    params: {}
+  - tool: configure_entity
+    params: {}
+  - tool: set_standard_view
+    params: {}
+expected_final_state:
+  success: true
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - site_id: "S002"
+        name: "中间段"
+        start_mileage: 10000.0
+        end_mileage: 20000.0
+    message: "按里程查询到 1 个工点"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D011"
+        name: "gpr_dk10_20.dat"
+        data_type: "GPR"
+        file_path: "data/raw/gpr_dk10_20.dat"
+      - dataset_id: "D012"
+        name: "tem_dk10.dat"
+        data_type: "TEM"
+        file_path: "data/raw/tem_dk10.dat"
+    message: "查询到 2 个数据集"
+    metadata: {count: 2}
+  import_dataset:
+    success: true
+    data: {entity_id: 1011}
+    message: "成功加载数据"
+    metadata: {}
+  interpolate_spatial:
+    success: true
+    data: {grid_shape: [200, 50, 50]}
+    file_path: "data/processed/forecast_grid.npz"
+    message: "空间插值完成"
+    metadata: {}
+  configure_entity:
+    success: true
+    data: {updated_entities: [2030]}
+    message: "实体配置更新成功"
+    metadata: {}
+  set_standard_view:
+    success: true
+    data: {direction: "isometric"}
+    message: "视角切换成功"
+    metadata: {}

@@ -1,0 +1,34 @@
+id: T-MA-12
+name: "错误恢复-数据量超阈值时Planner不应强行继续"
+agent: multi_agent
+level: L4
+prompt: "查询并加载隧道工程A的所有数据，然后对每一个数据集进行建模处理"
+expected_agents:
+  - InitializationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params: {}
+# 期望行为：query_metadata 返回超阈值摘要后，
+# InitializationAgent 告知 Planner 需要用户确认，
+# Planner 不应强行继续调用 import_dataset 或 ModelingAgent
+expected_final_state:
+  success: true  # 正确暂停等待确认也算成功
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data: []
+    message: "查询到 150 个数据集，超过确认阈值（128 条）。按类型分布：DEM×100、DOM×50。请向用户确认或缩小查询范围。"
+    metadata:
+      count: 150
+      needs_confirmation: true
+      by_type: {DEM: 100, DOM: 50}

@@ -1,0 +1,42 @@
+id: T-P-10
+name: "L3-三步-混合流程（地表CRS转换裁剪+洞内里程转换）"
+agent: PreprocessingAgent
+level: L3
+prompt: "先将DEM数据1001从EPSG:4326转到EPSG:4547，然后用中线2001对其做300米工程尺度缓冲裁剪（全线），再将TEM电磁数据实体1012（中线2001，纵断面2002）转换到三维空间坐标"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1001
+      transform_type: "crs_transform"
+      target_crs: "EPSG:4547"
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 3002
+      centerline_id: 2001
+      coverage_range: 300.0
+      clip_mode: "regional"
+  - tool: project_transform
+    params:
+      dataset_id: 1012
+      transform_type: "mileage_to_spatial"
+      centerline_id: 2001
+      profile_id: 2002
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3002}
+    file_path: null
+    message: "坐标变换完成，新实体ID: 3002"
+    metadata: {}
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4002}
+    file_path: null
+    message: "工程尺度二维缓冲区裁剪完成，边界实体ID: 4002"
+    metadata: {}

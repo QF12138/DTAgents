@@ -1,0 +1,20 @@
+id: T-MA-02
+name: "简单路由-建模任务路由至ModelingAgent"
+agent: multi_agent
+level: L1
+prompt: "对已加载的DEM实体（ID 1001）进行Delaunay三角剖分建模"
+expected_agents:
+  - ModelingAgent
+expected_tool_sequence:
+  - tool: delaunay_triangulation
+    params:
+      raster_id: 1001
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  delaunay_triangulation:
+    success: true
+    data: {entity_id: 2001}
+    message: "三角剖分完成，TIN 实体 ID: 2001"
+    metadata: {}

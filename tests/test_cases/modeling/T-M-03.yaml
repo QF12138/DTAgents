@@ -1,0 +1,19 @@
+id: T-M-03
+name: "L1-DOM纹理贴图"
+agent: ModelingAgent
+level: L1
+prompt: "将数据集ID为1002的DOM正射影像贴到地表三角网模型（实体ID 2001）上"
+expected_tool_sequence:
+  - tool: apply_texture
+    params:
+      surface_entity_id: 2001
+      dom_dataset_id: 1002
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  apply_texture:
+    success: true
+    data: {entity_id: 2001}
+    message: "纹理贴图完成，实体 ID: 2001"
+    metadata: {}

@@ -1,0 +1,21 @@
+id: T-M-05
+name: "L2-IDW插值参数填充测试"
+agent: ModelingAgent
+level: L2
+prompt: "对钻孔数据文件 data/raw/drl_2024.csv 中的soil_property属性使用IDW反距离权重插值法进行空间插值，目标网格为 data/processed/target_grid.npz"
+expected_tool_sequence:
+  - tool: interpolate_spatial
+    params:
+      control_points_path: "data/raw/drl_2024.csv"
+      attribute: "soil_property"
+      method: "IDW"
+expected_final_state:
+  success: true
+  contains_field: file_path
+mock_responses:
+  interpolate_spatial:
+    success: true
+    data: {grid_shape: [100, 100, 50], attribute: "soil_property"}
+    file_path: "data/processed/idw_result.npz"
+    message: "IDW 插值完成"
+    metadata: {}

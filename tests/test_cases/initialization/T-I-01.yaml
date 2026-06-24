@@ -1,0 +1,21 @@
+id: T-I-01
+name: "L1-查询所有工程列表"
+agent: InitializationAgent
+level: L1
+prompt: "请查询系统中所有的工程列表"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+        type: tunnel
+    message: "查询到 1 个工程"
+    metadata: {count: 1}

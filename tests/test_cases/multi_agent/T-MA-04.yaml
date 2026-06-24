@@ -1,0 +1,53 @@
+id: T-MA-04
+name: "两阶段协同-加载DEM并建三角网"
+agent: multi_agent
+level: L2
+prompt: "从系统中找到示例隧道工程的DEM高程数据，加载后立即对其进行三角剖分建立地表模型"
+expected_agents:
+  - InitializationAgent
+  - ModelingAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "DEM"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/dem_2024.tif"
+      dataset_type: "DEM"
+  - tool: delaunay_triangulation
+    params:
+      raster_id: 1001
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D001"
+        name: "dem_2024.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem_2024.tif"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}
+  import_dataset:
+    success: true
+    data: {entity_id: 1001}
+    message: "成功加载 DEM 数据，实体 ID: 1001"
+    metadata: {}
+  delaunay_triangulation:
+    success: true
+    data: {entity_id: 2001}
+    message: "三角剖分完成，TIN 实体 ID: 2001"
+    metadata: {}

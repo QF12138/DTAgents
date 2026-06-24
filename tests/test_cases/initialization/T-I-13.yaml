@@ -1,0 +1,19 @@
+id: T-I-13
+name: "L4-错误处理-查询不存在的工程"
+agent: InitializationAgent
+level: L4
+prompt: "查询名为'不存在工程XYZ'的工程下的数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+expected_final_state:
+  success: true
+  contains_field: data
+# 期望行为：agent 查询后得到空结果，应停止并告知用户，不应继续调用 query_metadata
+mock_responses:
+  query_hierarchy:
+    success: true
+    data: []
+    message: "未找到匹配的工程"
+    metadata: {count: 0}

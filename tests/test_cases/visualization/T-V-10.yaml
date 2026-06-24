@@ -1,0 +1,171 @@
+id: T-V-10
+name: "L3-施工期地质追踪与变形监测可视化"
+agent: VisualizationAgent
+level: L3
+prompt: "对施工掌子面进行实时地质追踪可视化：加载当前掌子面地质编录数据、收敛监测数据和新揭露的围岩照片，设置剖切显示掌子面后方围岩变化，同时添加施工进度线和里程标注"
+expected_tool_sequence:
+  - tool: import_entity
+    params:
+      entity_id: 8001
+      layer_name: "掌子面模型"
+  - tool: import_entity
+    params:
+      entity_id: 8002
+      layer_name: "收敛监测数据"
+  - tool: import_photo
+    params:
+      photo_path: "data/photos/face_DK6+850_20240115.jpg"
+      mileage: 6850.0
+      description: "DK6+850掌子面照片"
+  - tool: import_photo
+    params:
+      photo_path: "data/photos/face_DK6+850_20240108.jpg"
+      mileage: 6850.0
+      description: "DK6+850上周照片"
+  - tool: create_view
+    params:
+      layout: "horizontal_split"
+  - tool: set_entity_color
+    params:
+      entity_id: 8002
+      color_mode: "by_attribute"
+      attribute: "displacement"
+      color_map: "blue_to_red"
+  - tool: set_voxel_slice
+    params:
+      entity_id: 8003
+      slice_type: "transverse"
+      mileage: 6850.0
+      show_mesh: true
+  - tool: add_progress_line
+    params:
+      current_mileage: 6850.0
+      planned_mileage: 7000.0
+      colors: {actual: [0, 255, 0], planned: [255, 255, 0]}
+  - tool: add_mileage_marker
+    params:
+      markers: [6840, 6850, 6860, 6880, 6900]
+      interval: 20.0
+  - tool: add_comparison_slider
+    params:
+      photo_ids: [photo_001, photo_002]
+      position: [0.1, 0.8]
+    - tool: set_standard_view
+    params:
+      view_id: 3
+      direction: "front"
+    - tool: capture_view
+    params:
+      view_id: 3
+      output_path: "output/tracking/face_tracking_DK6+850.png"
+      resolution: [1920, 1080]
+expected_final_state:
+  success: true
+mock_responses:
+  import_entity:
+    success: true
+    data:
+      entity_id: 8001
+      layer_name: "掌子面模型"
+      geometry_type: "point_cloud"
+      point_count: 125000
+    message: "掌子面点云模型导入成功"
+    metadata: {mileage: DK6+850, date: 2024-01-15}
+  import_entity:
+    success: true
+    data:
+      entity_id: 8002
+      layer_name: "收敛监测数据"
+      monitoring_points: 48
+      time_series_length: 90
+    message: "收敛监测数据导入成功"
+    metadata: {type: convergence, frequency: daily}
+  import_photo:
+    success: true
+    data:
+      photo_id: "photo_001"
+      mileage: 6850.0
+      description: "DK6+850掌子面照片"
+      date: "2024-01-15"
+      resolution: [4000, 3000]
+    message: "照片导入成功"
+    metadata: {}
+  import_photo:
+    success: true
+    data:
+      photo_id: "photo_002"
+      mileage: 6850.0
+      description: "DK6+850上周照片"
+      date: "2024-01-08"
+      resolution: [4000, 3000]
+    message: "上周照片导入成功"
+    metadata: {}
+  create_view:
+    success: true
+    data:
+      view_id: 3
+      layout: "horizontal_split"
+      sub_views: [3.1, 3.2]
+    message: "水平分割视图创建成功"
+    metadata: {}
+  set_entity_color:
+    success: true
+    data:
+      entity_id: 8002
+      color_mode: "by_attribute"
+      attribute: "displacement"
+      color_map: "blue_to_red"
+      range: [0, 150]
+    message: "监测数据着色成功"
+    metadata: {color_map: blue_to_red, unit: mm}
+  set_voxel_slice:
+    success: true
+    data:
+      entity_id: 8003
+      slice_type: "transverse"
+      mileage: 6850.0
+      slice_entity_id: 9001
+      cross_section_area: 280000
+    message: "横断面剖切完成"
+    metadata: {mileage: DK6+850, width: 200m, height: 100m}
+  add_progress_line:
+    success: true
+    data:
+      current_mileage: 6850.0
+      planned_mileage: 7000.0
+      ahead_schedule: -150.0
+      status: "ahead"
+    message: "施工进度线添加成功（超前150m）"
+    metadata: {status: ahead_schedule}
+  add_mileage_marker:
+    success: true
+    data:
+      markers: 5
+      interval: 20.0
+    message: "里程标记添加成功"
+    metadata: {}
+  add_comparison_slider:
+    success: true
+    data:
+      slider_id: "slider_001"
+      photos: [photo_001, photo_002]
+      position: [0.1, 0.8]
+    message: "对比滑块添加成功"
+    metadata: {}
+  set_standard_view:
+    success: true
+    data:
+      view_id: 3
+      direction: "front"
+      camera_target: [6850.0, 0.0, -30.0]
+    message: "正视视角设置成功"
+    metadata: {}
+  capture_view:
+    success: true
+    data:
+      view_id: 3
+      output_path: "output/tracking/face_tracking_DK6+850.png"
+      resolution: [1920, 1080]
+      file_size: "3.2MB"
+    message: "追踪截图保存成功"
+    metadata: {format: PNG, size: [1920, 1080]}

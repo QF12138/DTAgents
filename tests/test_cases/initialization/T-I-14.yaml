@@ -1,0 +1,31 @@
+id: T-I-14
+name: "L4-错误处理-查询结果超过确认阈值"
+agent: InitializationAgent
+level: L4
+prompt: "查询隧道工程A中所有数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+# 期望行为：query_metadata 返回超阈值摘要后，agent 应转告用户并停止，不应调用 import_dataset
+expected_final_state:
+  success: true
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data: []
+    message: "查询到 150 个数据集，超过确认阈值（128 条）。按类型分布：DEM×100、DOM×50。请向用户确认或缩小查询范围。"
+    metadata:
+      count: 150
+      needs_confirmation: true
+      by_type: {DEM: 100, DOM: 50}

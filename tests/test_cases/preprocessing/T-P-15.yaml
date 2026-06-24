@@ -1,0 +1,87 @@
+id: T-P-15
+name: "L2-数据缺失情况下的预处理（部分数据可用）"
+agent: PreprocessingAgent
+level: L2
+prompt: "对DK6+500至DK7+000里程段进行预处理，但只有GPR数据和部分钻孔数据，TSP数据缺失，需要用现有数据完成体素化"
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_ids: [101]
+      transform_type: "mileage_to_spatial"
+      centerline_id: 2001
+  - tool: project_transform
+    params:
+      dataset_ids: [201, 202]
+      transform_type: "borehole_to_3d"
+      centerline_id: 2001
+  - tool: resample
+    params:
+      entity_ids: [301, 302, 303]
+      target_resolution: 2.0
+      method: "linear"
+  - tool: voxelize
+    params:
+      entity_ids: [401, 402, 403]
+      bbox: [6400.0, -150.0, -120.0, 7100.0, 150.0, 30.0]
+      resolution: 2.0
+expected_final_state:
+  success: true
+  contains_field: data
+  warnings:
+    - "TSP数据缺失，仅使用GPR和钻孔数据"
+    - "部分里程段（DK6+500-DK6+800）覆盖不完整"
+mock_responses:
+  project_transform:
+    success: true
+    data:
+      - entity_id: 301
+        original_id: 101
+        data_type: "GPR"
+        point_count: 285000
+        coverage_gaps: ["DK6+500-DK6+800"]
+    message: "GPR数据坐标转换完成，覆盖范围DK6+800-DK7+000"
+    metadata: {data_type: GPR, gaps: [DK6+500-DK6+800], coverage: partial}
+  project_transform:
+    success: true
+    data:
+      - entity_id: 302
+        original_id: 201
+        data_type: "BOREHOLE"
+        borehole_name: "BH-01"
+        depth_range: [0.0, 85.0]
+        point_count: 1280
+      - entity_id: 303
+        original_id: 202
+        data_type: "BOREHOLE"
+        borehole_name: "BH-02"
+        depth_range: [0.0, 78.0]
+        point_count: 1180
+    message: "2个钻孔数据坐标转换完成"
+    metadata: {boreholes: 2, avg_depth: 81.5}
+  resample:
+    success: true
+    data:
+      - entity_id: 401
+        original_id: 301
+        method: "linear"
+        point_count: 152000
+      - entity_id: 402
+        original_id: 302
+        method: "linear"
+        point_count: 3200
+      - entity_id: 403
+        original_id: 303
+        method: "linear"
+        point_count: 2950
+    message: "分辨率统一完成（2.0m）"
+    metadata: {resolution: 2.0}
+  voxelize:
+    success: true
+    data:
+      entity_id: 501
+      grid_dimensions: [350, 150, 75]
+      voxel_count: 3937500
+      attributes: [反射强度, 衰减系数, Vp_interpolated]
+      coverage_notes: "DK6+500-DK6+800区间基于钻孔数据插值"
+    message: "体素化完成（数据融合模式：GPR为主+钻孔插值补缺）"
+    metadata: {fusion_mode: GPR_dominant_with_borehole_interpolation, coverage: partial}

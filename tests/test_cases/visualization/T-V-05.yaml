@@ -1,0 +1,26 @@
+id: T-V-05
+name: "L2-创建分割视图并设置等轴侧视"
+agent: VisualizationAgent
+level: L2
+prompt: "创建一个水平分割的双视图布局，然后在新视图中切换到等轴侧视角"
+expected_tool_sequence:
+  - tool: create_view
+    params:
+      layout: "split_h"
+  - tool: set_standard_view
+    params:
+      direction: "isometric"
+      view_id: 2
+expected_final_state:
+  success: true
+mock_responses:
+  create_view:
+    success: true
+    data: {view_id: 2, layout: "split_h"}
+    message: "分割视图创建成功"
+    metadata: {}
+  set_standard_view:
+    success: true
+    data: {direction: "isometric", view_id: 2}
+    message: "视角切换成功"
+    metadata: {}

@@ -1,0 +1,206 @@
+id: T-M-14
+name: "L3-围岩分级智能建模（RMR+Q系统综合评级）"
+agent: ModelingAgent
+level: L3
+prompt: "对融合体素网格进行围岩分级计算：先用波速计算初始RMR评分，再综合RQD和岩性计算Q值，最后根据RMR和Q值进行GSI修正，输出综合围岩分级体素网格"
+expected_tool_sequence:
+  - tool: calculate_property
+    params:
+      voxel_grid_id: 6001
+      formula: "if(Vp >= 4500, 20, if(Vp >= 3500, 17, if(Vp >= 2500, 12, if(Vp >= 1500, 7, 2))))"
+      output_attribute: "RMR_Vp"
+  - tool: calculate_property
+    params:
+      voxel_grid_id: 6001
+      formula: "if(RQD >= 90, 20, if(RQD >= 75, 15, if(RQD >= 50, 8, if(RQD >= 25, 3, 0))))"
+      output_attribute: "RMR_RQD"
+  - tool: calculate_property
+    params:
+      voxel_grid_id: 6001
+      formula: "RMR_Vp + RMR_RQD + 10 + (-5 if(lithology in ['shale', 'mudstone']) else 0)"
+      output_attribute: "RMR_total"
+  - tool: classify_indicator
+    params:
+      voxel_grid_id: 6002
+      indicator_name: "RMR"
+      grade_scheme: "RMR"
+      attribute: "RMR_total"
+  - tool: calculate_property
+    params:
+      voxel_grid_id: 6001
+      formula: "(RQD * Jr * Jw) / (Ja * Jn)"
+      output_attribute: "Q_value"
+      input_attributes:
+        RQD: 5001
+        Jr: 6003
+        Jw: 6004
+        Ja: 6005
+        Jn: 6006
+  - tool: classify_indicator
+    params:
+      voxel_grid_id: 6007
+      indicator_name: "Q"
+      grade_scheme: "Q"
+      attribute: "Q_value"
+  - tool: calculate_property
+    params:
+      voxel_grid_id: 6001
+      formula: "min(RMR_total, (Q_value * 9 / Jn) + GSI_adjustment)"
+      output_attribute: "GSI_composite"
+  - tool: classify_indicator
+    params:
+      voxel_grid_id: 6008
+      indicator_name: "GSI"
+      grade_scheme: "GSI"
+      attribute: "GSI_composite"
+  - tool: validate_model
+    params:
+      model_id: 6009
+      drillhole_id: 7001
+      constraints:
+        no_extreme_values: true
+        layer_continuity: true
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  calculate_property:
+    success: true
+    data:
+      entity_id: 6002
+      output_attribute: "RMR_Vp"
+      stats:
+        mean: 14.2
+        min: 7.0
+        max: 20.0
+        std: 3.8
+      distribution:
+        I: {range: [17, 20], count: 245000}
+        II: {range: [14, 17), count: 892000}
+        III: {range: [12, 14), count: 1245000}
+        IV: {range: [7, 12), count: 856000}
+        V: {range: [0, 7), count: 342000}
+    message: "RMR_Vp计算完成"
+    metadata: {attribute: RMR_Vp, unit: score, range: [0, 20]}
+  calculate_property:
+    success: true
+    data:
+      entity_id: 6003
+      output_attribute: "RMR_RQD"
+      stats:
+        mean: 12.8
+        min: 0.0
+        max: 20.0
+        std: 5.2
+    message: "RMR_RQD计算完成"
+    metadata: {attribute: RMR_RQD, unit: score, range: [0, 20]}
+  calculate_property:
+    success: true
+    data:
+      entity_id: 6004
+      output_attribute: "RMR_total"
+      stats:
+        mean: 42.5
+        min: 12.0
+        max: 70.0
+        std: 12.5
+    message: "RMR总分计算完成"
+    metadata: {attribute: RMR_total, unit: score, range: [0, 100]}
+  classify_indicator:
+    success: true
+    data:
+      entity_id: 6005
+      indicator_name: "RMR"
+      grade_scheme: "RMR"
+      distribution:
+        I_Excellent: {range: [81, 100], count: 0}
+        II_Good: {range: [61, 80], count: 245000}
+        III_Fair: {range: [41, 60], count: 1245000}
+        IV_Poor: {range: [21, 40], count: 1652000}
+        V_VeryPoor: {range: [0, 20], count: 456000}
+    message: "RMR围岩分级完成"
+    metadata: {grades: 5, dominant_grade: IV}
+  calculate_property:
+    success: true
+    data:
+      entity_id: 6007
+      output_attribute: "Q_value"
+      stats:
+        mean: 8.5
+        min: 0.1
+        max: 100.0
+        median: 4.2
+        std: 12.8
+      distribution:
+        ExceptionallyPoor: {range: [0.001, 0.01), count: 124000}
+        ExtremelyPoor: {range: [0.01, 0.1), count: 456000}
+        VeryPoor: {range: [0.1, 1), count: 892000}
+        Poor: {range: [1, 4), count: 1245000}
+        Fair: {range: [4, 10), count: 856000}
+        Good: {range: [10, 40), count: 342000}
+        VeryGood: {range: [40, 400), count: 156000}
+        ExtremelyGood: {range: [400, 1000), count: 45000}
+    message: "Q值计算完成"
+    metadata: {attribute: Q_value, unit: index, range: [0.001, 1000]}
+  classify_indicator:
+    success: true
+    data:
+      entity_id: 6008
+      indicator_name: "Q"
+      grade_scheme: "Q"
+      distribution:
+        I: {range: [100, 1000], count: 45000}
+        II: {range: [10, 100), count: 498000}
+        III: {range: [1, 10), count: 2101000}
+        IV: {range: [0.1, 1), count: 892000}
+        V: {range: [0.01, 0.1), count: 456000}
+        VI: {range: [0.001, 0.01), count: 124000}
+    message: "Q系统围岩分级完成"
+    metadata: {grades: 6, dominant_grade: III}
+  calculate_property:
+    success: true
+    data:
+      entity_id: 6009
+      output_attribute: "GSI_composite"
+      stats:
+        mean: 45.2
+        min: 15.0
+        max: 75.0
+        std: 10.5
+      correlation_with_RMR: 0.88
+      correlation_with_Q: 0.82
+    message: "GSI综合评分计算完成"
+    metadata: {attribute: GSI_composite, method: weighted_integration}
+  classify_indicator:
+    success: true
+    data:
+      entity_id: 6010
+      indicator_name: "GSI"
+      grade_scheme: "GSI"
+      distribution:
+        VeryGood: {range: [75, 100], count: 234000}
+        Good: {range: [60, 75), count: 678000}
+        Fair: {range: [45, 60), count: 1562000}
+        Poor: {range: [30, 45), count: 892000}
+        VeryPoor: {range: [0, 30), count: 456000}
+    message: "GSI围岩分级完成"
+    metadata: {grades: 5, dominant_grade: III}
+  validate_model:
+    success: true
+    data:
+      passed: true
+      borehole_validation:
+        accuracy: 0.87
+        confusion_matrix:
+          - [245, 12, 8, 3, 2]
+          - [15, 892, 45, 12, 6]
+          - [8, 38, 1245, 67, 22]
+          - [5, 18, 56, 856, 25]
+          [3, 8, 24, 18, 342]
+      geological_constraints:
+        layer_continuity: {passed: true, score: 0.92}
+        no_floating_bodies: {passed: true, score: 0.98}
+        grade_transitions: {passed: true, score: 0.85}
+      overall_score: 0.89
+    message: "围岩分级模型验证通过"
+    metadata: {validation_method: borehole_comparison, confidence: 0.89}

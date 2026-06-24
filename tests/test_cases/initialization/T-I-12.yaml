@@ -1,0 +1,43 @@
+id: T-I-12
+name: "L3-三步完整流程-加载最近TBM掘进数据"
+agent: InitializationAgent
+level: L3
+prompt: "导入隧道工程A最近一次的TBM隧道掘进机的监测数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "TBM"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/tbm_20240315.csv"
+      dataset_type: "TBM"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D020"
+        name: "tbm_20240315.csv"
+        data_type: "TBM"
+        file_path: "data/raw/tbm_20240315.csv"
+        survey_date_start: "2024-03-15"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}
+  import_dataset:
+    success: true
+    data: {entity_id: 1020}
+    message: "成功加载 TBM 数据，实体 ID: 1020"
+    metadata: {}

@@ -1,0 +1,164 @@
+id: T-M-13
+name: "L3-综合地质建模（规则+数据驱动融合）"
+agent: ModelingAgent
+level: L3
+prompt: "对DK5+000至DK8+000里程段进行三维地质综合建模：首先建立基于地质专家规则的水平地层框架（表土层、砂岩层、泥岩层、灰岩层），然后用克里金插值融合钻孔和TSP物探数据修正局部岩性，最后提取各地层界面等值面"
+expected_tool_sequence:
+  - tool: model_geological_body
+    params:
+      rules:
+        - body_type: horizontal_layer
+          lithology: soil
+          depth_top: 0
+          depth_bottom: -8
+        - body_type: horizontal_layer
+          lithology: sandstone
+          depth_top: -8
+          depth_bottom: -35
+        - body_type: horizontal_layer
+          lithology: mudstone
+          depth_top: -35
+          depth_bottom: -65
+        - body_type: horizontal_layer
+          lithology: limestone
+          depth_top: -65
+          depth_bottom: -120
+      bbox: [4900.0, -200.0, -130.0, 8100.0, 200.0, 10.0]
+      resolution: 2.0
+  - tool: interpolate_spatial
+    params:
+      control_points_id: 3001
+      target_grid_id: 4001
+      attribute: "Vp"
+      method: "kriging"
+      method_params:
+        variogram_model: "spherical"
+        nlags: 12
+  - tool: interpolate_spatial
+    params:
+      control_points_id: 3002
+      target_grid_id: 4001
+      attribute: "lithology_code"
+      method: "kriging"
+      method_params:
+        variogram_model: "exponential"
+        nlags: 8
+  - tool: calculate_property
+    params:
+      voxel_grid_id: 5001
+      formula: "0.6 * lithology_kriging + 0.4 * rule_based"
+      output_attribute: "fused_lithology"
+  - tool: extract_isosurface
+    params:
+      voxel_grid_id: 6001
+      attribute: "depth"
+      isovalue: -8.0
+  - tool: extract_isosurface
+    params:
+      voxel_grid_id: 6001
+      attribute: "depth"
+      isovalue: -35.0
+  - tool: extract_isosurface
+    params:
+      voxel_grid_id: 6001
+      attribute: "depth"
+      isovalue: -65.0
+  - tool: extract_isosurface
+    params:
+      voxel_grid_id: 6001
+      attribute: "fused_lithology"
+      isovalue: 2.0
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  model_geological_body:
+    success: true
+    data:
+      entity_id: 4001
+      grid_dimensions: [1600, 400, 66]
+      voxel_count: 42240000
+      lithology_distribution:
+        soil: {count: 5120000, percentage: 12.1}
+        sandstone: {count: 17376000, percentage: 41.1}
+        mudstone: {count: 12672000, percentage: 30.0}
+        limestone: {count: 7072000, percentage: 16.7}
+    message: "规则建模完成，4层地层框架"
+    metadata: {layers: 4, method: rule_based}
+  interpolate_spatial:
+    success: true
+    data:
+      entity_id: 5001
+      grid_shape: [1600, 400, 66]
+      attribute: "Vp"
+      method: "kriging"
+      kriging_stats:
+        variance_mean: 0.08
+        variance_max: 0.25
+        variance_min: 0.01
+    message: "速度场克里金插值完成"
+    metadata: {variogram: spherical, nlags: 12, cross_validation_rmse: 0.15}
+  interpolate_spatial:
+    success: true
+    data:
+      entity_id: 5002
+      grid_shape: [1600, 400, 66]
+      attribute: "lithology_code"
+      method: "kriging"
+      kriging_stats:
+        accuracy: 0.78
+        kappa: 0.65
+    message: "岩性场克里金插值完成"
+    metadata: {variogram: exponential, nlags: 8, classification_accuracy: 0.78}
+  calculate_property:
+    success: true
+    data:
+      entity_id: 6001
+      output_attribute: "fused_lithology"
+      fusion_weights: {kriging: 0.6, rule_based: 0.4}
+      validation:
+        borehole_match: 0.85
+        layer_continuity: 0.92
+    message: "多源融合完成，生成综合岩性属性"
+    metadata: {fusion_method: weighted_average, weights: [0.6, 0.4]}
+  extract_isosurface:
+    success: true
+    data:
+      entity_id: 7001
+      surface_name: "地表界面"
+      isovalue: -8.0
+      vertex_count: 48500
+      face_count: 96700
+    message: "地表等值面提取完成"
+    metadata: {interface: soil_sandstone}
+  extract_isosurface:
+    success: true
+    data:
+      entity_id: 7002
+      surface_name: "砂泥岩分界面"
+      isovalue: -35.0
+      vertex_count: 52300
+      face_count: 104200
+    message: "砂泥岩界面提取完成"
+    metadata: {interface: sandstone_mudstone}
+  extract_isosurface:
+    success: true
+    data:
+      entity_id: 7003
+      surface_name: "泥灰岩分界面"
+      isovalue: -65.0
+      vertex_count: 61200
+      face_count: 122100
+    message: "泥灰岩界面提取完成"
+    metadata: {interface: mudstone_limestone}
+  extract_isosurface:
+    success: true
+    data:
+      entity_id: 7004
+      surface_name: "泥岩层等值面"
+      isovalue: 2.0
+      vertex_count: 45800
+      face_count: 91300
+      coverage_percentage: 30.1
+    message: "泥岩层等值面提取完成"
+    metadata: {lithology: mudstone, coverage: 30.1%}

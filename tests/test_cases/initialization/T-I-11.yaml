@@ -1,0 +1,42 @@
+id: T-I-11
+name: "L3-三步完整流程-加载所有DOM正射影像"
+agent: InitializationAgent
+level: L3
+prompt: "请读取隧道工程A中所有可用的DOM正射影像数据"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "DOM"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/dom_2024.tif"
+      dataset_type: "DOM"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "隧道工程A"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D002"
+        name: "dom_2024.tif"
+        data_type: "DOM"
+        file_path: "data/raw/dom_2024.tif"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}
+  import_dataset:
+    success: true
+    data: {entity_id: 1002}
+    message: "成功加载 DOM 数据，实体 ID: 1002"
+    metadata: {}

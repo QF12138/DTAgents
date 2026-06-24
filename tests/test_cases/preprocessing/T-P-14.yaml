@@ -1,0 +1,155 @@
+id: T-P-14
+name: "L3-多期GPR时序数据变化检测预处理"
+agent: PreprocessingAgent
+level: L3
+prompt: "对2021年至2024年的四期GPR检测数据进行变化检测预处理：对齐各期数据的空间和时间基准，统一分辨率后计算各测点处的反射强度变化率，识别异常变化区域"
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_ids: [101, 102, 103, 104]
+      transform_type: "mileage_to_spatial"
+      centerline_id: 1001
+  - tool: resample
+    params:
+      entity_ids: [2001, 2002, 2003, 2004]
+      target_resolution: 1.0
+      method: "linear"
+  - tool: normalize_attributes
+    params:
+      entity_ids: [3001, 3002, 3003, 3004]
+      attributes: [反射强度, 衰减系数]
+      method: "z_score"
+  - tool: calculate_property
+    params:
+      entity_ids: [4001, 4002, 4003, 4004]
+      formula: "abs(reflect_current - reflect_previous) / (reflect_previous + 1e-6)"
+      output_attribute: "change_rate"
+  - tool: filter_outliers
+    params:
+      entity_id: 5001
+      attribute: "change_rate"
+      method: "iqr"
+      threshold: 2.5
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  project_transform:
+    success: true
+    data:
+      - entity_id: 2001
+        original_id: 101
+        survey_period: "2021Q1"
+        survey_date: "2021-03-01"
+        point_count: 285000
+      - entity_id: 2002
+        original_id: 102
+        survey_period: "2022Q2"
+        survey_date: "2022-06-15"
+        point_count: 312000
+      - entity_id: 2003
+        original_id: 103
+        survey_period: "2023Q3"
+        survey_date: "2023-09-20"
+        point_count: 356000
+      - entity_id: 2004
+        original_id: 104
+        survey_period: "2024Q4"
+        survey_date: "2024-12-10"
+        point_count: 398000
+    message: "四期GPR数据坐标转换完成"
+    metadata: {total_periods: 4, time_span: "2021-2024", total_points: 1351000}
+  resample:
+    success: true
+    data:
+      - entity_id: 3001
+        original_id: 2001
+        method: "linear"
+        target_resolution: 1.0
+        point_count: 285000
+      - entity_id: 3002
+        original_id: 2002
+        method: "linear"
+        target_resolution: 1.0
+        point_count: 312000
+      - entity_id: 3003
+        original_id: 2003
+        method: "linear"
+        target_resolution: 1.0
+        point_count: 356000
+      - entity_id: 3004
+        original_id: 2004
+        method: "linear"
+        target_resolution: 1.0
+        point_count: 398000
+    message: "统一分辨率重采样完成，基准分辨率 1.0m"
+    metadata: {target_resolution: 1.0, method: linear, aligned_points: true}
+  normalize_attributes:
+    success: true
+    data:
+      - entity_id: 4001
+        attributes_normalized: [反射强度, 衰减系数]
+        normalization_params:
+          反射强度: {mean: 0.45, std: 0.12}
+          衰减系数: {mean: -0.32, std: 0.08}
+      - entity_id: 4002
+        attributes_normalized: [反射强度, 衰减系数]
+        normalization_params:
+          反射强度: {mean: 0.48, std: 0.14}
+          衰减系数: {mean: -0.28, std: 0.09}
+      - entity_id: 4003
+        attributes_normalized: [反射强度, 衰减系数]
+        normalization_params:
+          反射强度: {mean: 0.52, std: 0.15}
+          衰减系数: {mean: -0.25, std: 0.10}
+      - entity_id: 4004
+        attributes_normalized: [反射强度, 衰减系数]
+        normalization_params:
+          反射强度: {mean: 0.55, std: 0.16}
+          衰减系数: {mean: -0.22, std: 0.11}
+    message: "属性标准化完成（Z-Score方法）"
+    metadata: {method: z_score, attributes: [反射强度, 衰减系数]}
+  calculate_property:
+    success: true
+    data:
+      - entity_id: 5001
+        periods_compared: [2021Q1_vs_2022Q2]
+        change_rate_stats:
+          mean: 0.12
+          max: 0.85
+          min: 0.01
+          std: 0.15
+      - entity_id: 5002
+        periods_compared: [2022Q2_vs_2023Q3]
+        change_rate_stats:
+          mean: 0.18
+          max: 1.25
+          min: 0.02
+          std: 0.22
+      - entity_id: 5003
+        periods_compared: [2023Q3_vs_2024Q4]
+        change_rate_stats:
+          mean: 0.15
+          max: 0.95
+          min: 0.01
+          std: 0.18
+    message: "变化率计算完成"
+    metadata: {change_indicators: 3, analysis_type: temporal_difference}
+  filter_outliers:
+    success: true
+    data:
+      entity_id: 6001
+      outliers_removed: 2850
+      outliers_percentage: 0.8
+      change_zones:
+        - mileage: "DK5+200-DK5+280"
+          confidence: 0.92
+          change_type: "significant_increase"
+        - mileage: "DK6+500-DK6+650"
+          confidence: 0.88
+          change_type: "significant_decrease"
+        - mileage: "DK7+200-DK7+350"
+          confidence: 0.85
+          change_type: "moderate_increase"
+    message: "异常值过滤完成，识别出3个显著变化区段"
+    metadata: {anomaly_zones: 3, detection_confidence: [0.92, 0.88, 0.85]}

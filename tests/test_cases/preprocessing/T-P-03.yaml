@@ -1,0 +1,26 @@
+id: T-P-03
+name: "L1-单步-工程尺度区域裁剪（含里程区间）"
+agent: PreprocessingAgent
+level: L1
+prompt: "用中线实体2001对DEM数据1001进行工程尺度裁剪，缓冲区200米，里程区间DK5+000到DK6+500"
+
+expected_tool_sequence:
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 1001
+      centerline_id: 2001
+      coverage_range: 200.0
+      clip_mode: "regional"
+      mileage_range: [5000.0, 6500.0]
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4002}
+    file_path: null
+    message: "工程尺度二维缓冲区裁剪完成，边界实体ID: 4002"
+    metadata: {}

@@ -1,0 +1,73 @@
+id: T-MA-09
+name: "完整三阶段-钻孔数据克里金建模可视化"
+agent: multi_agent
+level: L3
+prompt: "加载示例隧道工程的钻孔数据（DRL），使用克里金插值建立三维属性场，提取主要岩性等值面，然后在三维视图中展示"
+expected_agents:
+  - InitializationAgent
+  - ModelingAgent
+  - VisualizationAgent
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "DRL"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/drl_2024.csv"
+      dataset_type: "DRL"
+  - tool: interpolate_spatial
+    params:
+      control_points_path: "data/raw/drl_2024.csv"
+      method: "kriging"
+  - tool: extract_isosurface
+    params:
+      voxel_grid_path: "data/processed/kriging_result.npz"
+      attribute: "lithology"
+      isovalue: 2.0
+  - tool: configure_entity
+    params:
+      entity_ids: [2010]
+expected_final_state:
+  success: true
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D003"
+        name: "drl_2024.csv"
+        data_type: "DRL"
+        file_path: "data/raw/drl_2024.csv"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}
+  import_dataset:
+    success: true
+    data: {entity_id: 1003}
+    message: "成功加载 DRL 数据，实体 ID: 1003"
+    metadata: {}
+  interpolate_spatial:
+    success: true
+    data: {grid_shape: [100, 100, 50]}
+    file_path: "data/processed/kriging_result.npz"
+    message: "克里金插值完成"
+    metadata: {}
+  extract_isosurface:
+    success: true
+    data: {entity_id: 2010}
+    message: "等值面提取完成，实体 ID: 2010"
+    metadata: {}
+  configure_entity:
+    success: true
+    data: {updated_entities: [2010]}
+    message: "实体配置更新成功"
+    metadata: {}

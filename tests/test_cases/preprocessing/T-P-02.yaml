@@ -1,0 +1,25 @@
+id: T-P-02
+name: "L1-单步-里程转三维空间坐标"
+agent: PreprocessingAgent
+level: L1
+prompt: "将AHD钻孔数据实体1010转换到三维空间坐标系，中线实体ID为2001，纵断面实体ID为2002"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1010
+      transform_type: "mileage_to_spatial"
+      centerline_id: 2001
+      profile_id: 2002
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3001}
+    file_path: null
+    message: "里程转三维坐标完成，新实体ID: 3001"
+    metadata: {}

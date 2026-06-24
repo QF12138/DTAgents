@@ -1,0 +1,20 @@
+id: T-V-04
+name: "L2-体素模型Z方向切片"
+agent: VisualizationAgent
+level: L2
+prompt: "对体素模型实体2开启Z轴方向的切片显示，切片位置在高程-50米处"
+expected_tool_sequence:
+  - tool: set_voxel_slice
+    params:
+      entity_id: 2
+      enabled: true
+      axis: "Z"
+      position: -50.0
+expected_final_state:
+  success: true
+mock_responses:
+  set_voxel_slice:
+    success: true
+    data: {entity_id: 2, axis: "Z", position: -50.0}
+    message: "体素切片设置成功"
+    metadata: {}

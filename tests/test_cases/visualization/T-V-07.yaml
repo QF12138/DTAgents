@@ -1,0 +1,23 @@
+id: T-V-07
+name: "L3-多组实体差异化显示配置"
+agent: VisualizationAgent
+level: L3
+prompt: "将实体1、2、3设置为半透明显示（透明度30%），将实体4、5、6设置为不透明的岩性色图（lithology colormap）显示"
+expected_tool_sequence:
+  - tool: configure_entity
+    params:
+      entity_ids: [1, 2, 3]
+      opacity: 0.3
+  - tool: configure_entity
+    params:
+      entity_ids: [4, 5, 6]
+      colormap: "lithology"
+      opacity: 1.0
+expected_final_state:
+  success: true
+mock_responses:
+  configure_entity:
+    success: true
+    data: {updated_entities: [1, 2, 3]}
+    message: "实体配置更新成功"
+    metadata: {}

@@ -1,0 +1,28 @@
+id: T-M-09
+name: "L3-三步-完整地表模型构建（DEM三角网+DOM纹理）"
+agent: ModelingAgent
+level: L3
+prompt: "基于DEM实体（ID 1001）构建TIN三角网地表模型，然后将DOM影像（数据集ID 1002）贴图到地表模型上"
+expected_tool_sequence:
+  - tool: delaunay_triangulation
+    params:
+      raster_id: 1001
+      with_uvcoords: true
+  - tool: apply_texture
+    params:
+      surface_entity_id: 2001
+      dom_dataset_id: 1002
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  delaunay_triangulation:
+    success: true
+    data: {entity_id: 2001}
+    message: "三角剖分完成，TIN 实体 ID: 2001"
+    metadata: {}
+  apply_texture:
+    success: true
+    data: {entity_id: 2001}
+    message: "纹理贴图完成，实体 ID: 2001"
+    metadata: {}

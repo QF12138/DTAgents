@@ -1,0 +1,18 @@
+id: T-M-01
+name: "L1-DEM三角剖分"
+agent: ModelingAgent
+level: L1
+prompt: "对实体ID为1001的DEM栅格数据进行Delaunay三角剖分，构建TIN地表模型"
+expected_tool_sequence:
+  - tool: delaunay_triangulation
+    params:
+      raster_id: 1001
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  delaunay_triangulation:
+    success: true
+    data: {entity_id: 2001}
+    message: "三角剖分完成，TIN 实体 ID: 2001"
+    metadata: {}

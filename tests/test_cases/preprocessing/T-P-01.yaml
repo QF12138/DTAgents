@@ -1,0 +1,24 @@
+id: T-P-01
+name: "L1-单步-CRS坐标系转换（含source_crs）"
+agent: PreprocessingAgent
+level: L1
+prompt: "将DEM数据实体1001从EPSG:4326转换到工程坐标系EPSG:4547"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1001
+      transform_type: "crs_transform"
+      target_crs: "EPSG:4547"
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3002}
+    file_path: null
+    message: "坐标系转换完成，新实体ID: 3002"
+    metadata: {}

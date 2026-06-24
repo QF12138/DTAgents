@@ -1,0 +1,39 @@
+id: T-M-10
+name: "L3-三步-完整地质建模流程（插值→分类→等值面）"
+agent: ModelingAgent
+level: L3
+prompt: "请对钻孔数据进行完整的三维地质建模：首先用克里金插值建立属性场，然后进行岩性机器学习分类，最后提取主要岩性界面"
+expected_tool_sequence:
+  - tool: interpolate_spatial
+    params:
+      method: "kriging"
+  - tool: classify_lithology
+    params:
+      feature_grid_path: "data/processed/kriging_result.npz"
+      model_type: "random_forest"
+  - tool: extract_isosurface
+    params:
+      voxel_grid_path: "data/processed/lithology_rf.npz"
+      attribute: "lithology"
+      isovalue: 1.0
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  interpolate_spatial:
+    success: true
+    data: {grid_shape: [100, 100, 50]}
+    file_path: "data/processed/kriging_result.npz"
+    message: "克里金插值完成"
+    metadata: {}
+  classify_lithology:
+    success: true
+    data: {accuracy: 0.90, classes: ["砂岩", "泥岩"]}
+    file_path: "data/processed/lithology_rf.npz"
+    message: "岩性分类完成"
+    metadata: {}
+  extract_isosurface:
+    success: true
+    data: {entity_id: 2020}
+    message: "等值面提取完成，实体 ID: 2020"
+    metadata: {}

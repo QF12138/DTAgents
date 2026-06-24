@@ -1,0 +1,26 @@
+id: T-P-11
+name: "L4-边界-未指定覆盖范围时应跳过clip_to_boundary"
+agent: PreprocessingAgent
+level: L4
+prompt: "将DEM数据实体1001从EPSG:4326转换到工程坐标系EPSG:4547"
+# 用户未提及裁剪范围，agent 不应调用 clip_to_boundary
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1001
+      transform_type: "crs_transform"
+      target_crs: "EPSG:4547"
+# 期望行为：仅调用 project_transform，不应出现 clip_to_boundary 或 spatial_sample
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3002}
+    file_path: null
+    message: "坐标系转换完成，新实体ID: 3002"
+    metadata: {}

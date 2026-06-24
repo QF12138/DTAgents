@@ -1,0 +1,42 @@
+id: T-I-09
+name: "L3-三步完整流程-检索并加载DEM数据"
+agent: InitializationAgent
+level: L3
+prompt: "检索示例隧道工程的DEM数字高程模型数据并加载到系统中"
+expected_tool_sequence:
+  - tool: query_hierarchy
+    params:
+      level: project
+  - tool: query_metadata
+    params:
+      project_id: "P001"
+      data_type: "DEM"
+  - tool: import_dataset
+    params:
+      dataset_path: "data/raw/dem_2024.tif"
+      dataset_type: "DEM"
+expected_final_state:
+  success: true
+  contains_field: data
+mock_responses:
+  query_hierarchy:
+    success: true
+    data:
+      - project_id: "P001"
+        name: "示例隧道工程"
+    message: "查询到 1 个工程"
+    metadata: {count: 1}
+  query_metadata:
+    success: true
+    data:
+      - dataset_id: "D001"
+        name: "dem_2024.tif"
+        data_type: "DEM"
+        file_path: "data/raw/dem_2024.tif"
+    message: "查询到 1 个数据集"
+    metadata: {count: 1}
+  import_dataset:
+    success: true
+    data: {entity_id: 1001}
+    message: "成功加载 DEM 数据，实体 ID: 1001"
+    metadata: {}

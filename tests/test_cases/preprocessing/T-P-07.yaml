@@ -1,0 +1,37 @@
+id: T-P-07
+name: "L2-两步-CRS转换后工程尺度裁剪（不指定里程，覆盖全线）"
+agent: PreprocessingAgent
+level: L2
+prompt: "将DEM实体1001从EPSG:4326转换到EPSG:4547，然后沿中线2001做300米工程尺度缓冲裁剪，覆盖全线范围"
+
+expected_tool_sequence:
+  - tool: project_transform
+    params:
+      dataset_id: 1001
+      transform_type: "crs_transform"
+      target_crs: "EPSG:4547"
+  - tool: clip_to_boundary
+    params:
+      dataset_id: 3002
+      centerline_id: 2001
+      coverage_range: 300.0
+      clip_mode: "regional"
+# mileage_range 不传，覆盖全线（验证可选参数不被幻觉填充）
+
+expected_final_state:
+  success: true
+  contains_field: data
+
+mock_responses:
+  project_transform:
+    success: true
+    data: {entity_id: 3002}
+    file_path: null
+    message: "坐标系转换完成，新实体ID: 3002"
+    metadata: {}
+  clip_to_boundary:
+    success: true
+    data: {boundary_entity_id: 4002}
+    file_path: null
+    message: "工程尺度二维缓冲区裁剪完成，边界实体ID: 4002"
+    metadata: {}
